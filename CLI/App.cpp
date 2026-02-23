@@ -54,12 +54,12 @@ void App::stateMachine() {
                 isRunning = false;
                 return;
             default:
-                cout <<"Unknown option"<<endl;
+                cout <<"Unknown option"<<endl << endl;
                 break;
         }
     }catch (const invalid_argument& e) {
-        cout << "Not a number!" << endl;
+        cout << "Not a number!" << endl << endl;
     }catch (const out_of_range& e) {
-        cout << "Out of range!" << endl;
+        cout << "Out of range!" << endl << endl;
     }
 }
