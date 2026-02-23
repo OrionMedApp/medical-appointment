@@ -84,4 +84,7 @@ Nakon merge-a:
 
 Merge
 
+
+GGWP
+
 ➡ To je nova stabilna verzija (demo-ready).
