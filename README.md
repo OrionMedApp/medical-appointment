@@ -30,11 +30,17 @@ git pull origin dev
 
 2️⃣ Napravi novu granu za svoj task
 Backend
+```
 git checkout -b feature/be-appointments-crud
+```
 Frontend
+```
 git checkout -b feature/fe-filtering
+```
 CLI / Embedded
+```
 git checkout -b feature/cli-sync-doctors
+```
 3️⃣ Radi normalno
 
 Dodaj izmene:
