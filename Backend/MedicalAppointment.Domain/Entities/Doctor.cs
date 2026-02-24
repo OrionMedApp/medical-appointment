@@ -20,6 +20,8 @@ namespace MedicalAppointment.Domain.Entities
         [Required, MaxLength(120)]
         public Specialization Specialization { get; private set; } = default!;
 
+        public string Email { get; set; }
+
         [MaxLength(40)]
         [Phone]
         public string Phone { get; set; }
