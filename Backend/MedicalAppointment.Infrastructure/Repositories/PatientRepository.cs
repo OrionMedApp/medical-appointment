@@ -44,5 +44,11 @@ namespace MedicalAppointment.Infrastructure.Repositories
             _context.Patients.Remove(patient);
             await _context.SaveChangesAsync();
         }
+
+        public async Task UpdateAsync(Patient patient)
+        {
+            _context.Patients.Update(patient);
+            await _context.SaveChangesAsync();
+        }
     }
 }

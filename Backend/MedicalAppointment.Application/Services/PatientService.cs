@@ -1,6 +1,7 @@
 ﻿using MedicalAppointment.Application.DTOs.Patient;
 using MedicalAppointment.Application.IServices;
 using MedicalAppointment.Domain.Entities;
+using MedicalAppointment.Domain.Exceptions;
 using MedicalAppointment.Domain.IRepositories;
 using System;
 using System.Collections.Generic;
@@ -32,8 +33,6 @@ namespace MedicalAppointment.Application.Services
             var created = await _repository.AddAsync(newPatient);
             return created;
         }
-
-
 
 
         public async Task<List<ReturnPatientDTO>> GetAllAsync(int page = 1, int pageSize = 20)
@@ -69,6 +68,28 @@ namespace MedicalAppointment.Application.Services
 
         }
 
+        public async Task<Patient?> UpdateAsync(Guid id, UpdatePatientDTO dto)
+        {
+            var patient = await _repository.GetByIdAsync(id);
+
+            if (patient == null)
+                return null;
+
+            if (string.IsNullOrWhiteSpace(dto.FirstName))
+                throw new DomainValidationException("First name is required");
+
+            if (string.IsNullOrWhiteSpace(dto.LastName))
+                throw new DomainValidationException("Last name is required");
+
+            patient.FirstName = dto.FirstName;
+            patient.LastName = dto.LastName;
+            patient.Email = dto.Email;
+            patient.Phone = dto.Phone;
+
+            await _repository.UpdateAsync(patient);
+
+            return patient;
+        }
         public Task<byte[]> GetAllPatientsCsvAsync()
         {
             throw new NotImplementedException();

@@ -19,7 +19,7 @@ namespace MedicalAppointment.Application.DTOs.Patient
         [EmailAddress]
         public string Email { get; set; } = string.Empty;
         [Required]
-        [Phone]
+        [RegularExpression(@"^(?:\+3816\d{7,8}|06\d{7,8})$", ErrorMessage = "Invalid Serbian phone number")]
         public string Phone { get; set; } = string.Empty; 
 
     }
