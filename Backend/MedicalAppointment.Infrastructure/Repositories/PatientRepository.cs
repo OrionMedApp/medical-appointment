@@ -26,10 +26,11 @@ namespace MedicalAppointment.Infrastructure.Repositories
                 .FirstOrDefaultAsync(p => p.Id == id);
         }
 
-        public async Task AddAsync(Patient patient)
+        public async Task<Patient> AddAsync(Patient patient)
         {
             await _context.Patients.AddAsync(patient);
             await _context.SaveChangesAsync();
+            return patient;
         }
 
 
