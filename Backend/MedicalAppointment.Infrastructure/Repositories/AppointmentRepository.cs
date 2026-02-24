@@ -1,0 +1,34 @@
+﻿using MedicalAppointment.Domain.Entities;
+using MedicalAppointment.Domain.IRepositories;
+using MedicalAppointment.Infrastructure.Data;
+using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace MedicalAppointment.Infrastructure.Repositories
+{
+    public class AppointmentRepository : IAppointmentRepository
+    {
+        private readonly AppDbContext _context;
+        public AppointmentRepository(AppDbContext dbContext)
+        {
+            _context = dbContext;
+        }
+        public async Task<Appointment> AddAsync(Appointment appointment)
+        {
+
+            await _context.Appointments.AddAsync(appointment);
+            await _context.SaveChangesAsync();
+            return appointment;
+        }
+
+        public async Task<Appointment?> GetByIdAsync(Guid id)
+        {
+            return await _context.Appointments
+                .FirstOrDefaultAsync(a => a.Id == id);
+        }
+    }
+}

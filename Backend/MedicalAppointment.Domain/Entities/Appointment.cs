@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MedicalAppointment.Domain.Exceptions;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -9,6 +10,38 @@ namespace MedicalAppointment.Domain.Entities
 {
     public class Appointment
     {
+        public Appointment(
+            Guid patientId,
+            Guid doctorId,
+            AppointmentType type,
+            DateTime startTime,
+            DateTime endTime,
+            string? notes)
+        {
+            if (patientId == Guid.Empty)
+                throw new DomainValidationException("PatientId must be valid GUID");
+
+            if (doctorId == Guid.Empty)
+                throw new DomainValidationException("DoctorId must be valid GUID");
+
+            if (startTime >= endTime)
+                throw new DomainValidationException("Start time must be before end time");
+
+            if (startTime < DateTime.UtcNow)
+                throw new DomainValidationException("Appointment cannot be scheduled in the past");
+
+            if (!string.IsNullOrWhiteSpace(notes) && notes.Length > 2000)
+                throw new DomainValidationException("Notes cannot exceed 2000 characters");
+
+            Id = Guid.NewGuid();
+            PatientId = patientId;
+            DoctorId = doctorId;
+            Type = type;
+            Status = AppointmentStatus.Scheduled; 
+            StartTime = startTime;
+            EndTime = endTime;
+            Notes = notes ?? string.Empty;
+        }
         public Guid Id { get; set; }
 
         // Patient
