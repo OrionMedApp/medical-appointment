@@ -32,6 +32,19 @@ namespace MedicalAppointment.Application.Services
             return newPatient;
         }
 
+
+
+
+        public async Task<List<ReturnPatientDTO>> GetAllAsync()
+        {
+            var patients = await _repository.GetAllAsync();
+            return patients.Select(p => new ReturnPatientDTO
+            {
+                Id = p.Id,
+                FirstName = p.FirstName,
+                LastName = p.LastName
+            }).ToList();
+        }
         public async Task<bool> DeleteAsync(Guid id)
         {
             var patient = await _repository.GetByIdAsync(id);
@@ -39,6 +52,7 @@ namespace MedicalAppointment.Application.Services
                 return false;
             await _repository.DeleteAsync(patient);
             return true;
+
         }
     }
 }

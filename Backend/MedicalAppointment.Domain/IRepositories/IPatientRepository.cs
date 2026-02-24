@@ -11,7 +11,12 @@ namespace MedicalAppointment.Domain.IRepositories
     {
         Task<Patient?> GetByIdAsync(Guid id);
         Task AddAsync(Patient patient);
+
+
+        Task<List<Patient>> GetAllAsync();
+
+
         Task DeleteAsync(Patient patient);
-        
+
     }
 }
