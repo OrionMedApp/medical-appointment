@@ -55,5 +55,29 @@ namespace MedicalAppointment.Api.Controllers
             var doctors = await _service.GetAllAsync(page, pageSize);
             return Ok(doctors);
         }
+        [HttpPut("{id:guid}")]
+        public async Task<ActionResult<Doctor>> Update(Guid id, [FromBody] UpdateDoctorDTO dto)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            try
+            {
+                var updated = await _service.UpdateAsync(id, dto);
+
+                if (updated == null)
+                    return NotFound();
+
+                return Ok(updated);
+            }
+            catch (DomainValidationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (DbUpdateException)
+            {
+                return StatusCode(500, "Database error while updating doctor");
+            }
+        }
     }
 }

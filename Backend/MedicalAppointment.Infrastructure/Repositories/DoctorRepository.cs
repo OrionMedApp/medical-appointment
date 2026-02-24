@@ -36,5 +36,10 @@ namespace MedicalAppointment.Infrastructure.Repositories
         {
             return await _context.Doctors.ToListAsync();
         }
+        public async Task UpdateAsync(Doctor doctor)
+        {
+            _context.Doctors.Update(doctor);
+            await _context.SaveChangesAsync();
+        }
     }
 }
