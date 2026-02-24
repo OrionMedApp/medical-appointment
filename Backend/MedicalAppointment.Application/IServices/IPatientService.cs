@@ -1,4 +1,4 @@
-﻿using MedicalAppointment.Application.DTOs;
+﻿using MedicalAppointment.Application.DTOs.Patient;
 using MedicalAppointment.Domain.Entities;
 using System;
 using System.Collections.Generic;
@@ -11,7 +11,7 @@ namespace MedicalAppointment.Application.IServices
     public interface IPatientService
     {
         Task<Patient?> GetByIdAsync(Guid id);
-        Task<Patient> CreateAsync(PatientDTO patient);
+        Task<Patient> CreateAsync(CreatePatientDTO patient);
        
     }
 }

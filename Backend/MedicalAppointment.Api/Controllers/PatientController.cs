@@ -1,6 +1,7 @@
-﻿using MedicalAppointment.Application.DTOs;
+﻿using MedicalAppointment.Application.DTOs.Patient;
 using MedicalAppointment.Application.IServices;
 using MedicalAppointment.Domain.Entities;
+using MedicalAppointment.Domain.Exceptions;
 using MedicalAppointment.Infrastructure.Data;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -20,7 +21,7 @@ namespace MedicalAppointment.Api.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<Patient>> Create(PatientDTO patient)
+        public async Task<ActionResult<Patient>> Create([FromBody] CreatePatientDTO patient)
         {
             if(!ModelState.IsValid)
                 return BadRequest(ModelState);
@@ -29,9 +30,13 @@ namespace MedicalAppointment.Api.Controllers
                 var created = await _service.CreateAsync(patient);
                 return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
             }
-            catch (Exception ex)
+            catch (DomainValidationException ex)
             {
-                return StatusCode(500, $"An error occurred while creating the patient: {ex.Message}");
+                return BadRequest(ex.Message);
+            }
+          
+            catch (DbUpdateException) {
+                return StatusCode(500, "Databse error while saving patient");
             }
         }
         [HttpGet("{id:guid}")]
