@@ -4,6 +4,8 @@
 
 #include "App.hpp"
 
+#include "Validator.hpp"
+
 using namespace std;
 
 
@@ -40,11 +42,33 @@ int App::chooseOption() {
     return option;
 }
 
+void App::addDoctor() {
+    string email, name,spec,phone;
+    std::cout << "--- Add New Doctor ---" << endl;
+    std::cout << "Email: "; std::getline(std::cin >> std::ws, email);
+    if (!Validator::isValidEmail(email)) {
+        std::cout << "Invalid email!" << endl << endl;
+        return;
+    }
+    std::cout << "Name: "; std::getline(std::cin >> std::ws, name);
+    std::cout << "Specialization: "; std::getline(std::cin, spec);
+    std::cout << "Phone: "; std::getline(std::cin, phone);
+    if (!Validator::isValidPhone(phone)) {
+        std::cout << "Invalid phone!" << endl << endl;
+        return;
+    }
+    Doctor d = Doctor(name,spec,phone,email);
+    hospitalManager->addSaveDoctor(d);
+    cout << "Doctor added" << endl;
+}
+
 void App::stateMachine() {
     try {
         switch (chooseOption()) {
             case SCHEDULE:
             case ADD_DOCTOR:
+                addDoctor();
+                break;
             case ADD_PATIENT:
             case STORE_ENTRIES:
             case TRACK_APPOINTMENTS:

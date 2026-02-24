@@ -39,6 +39,12 @@ namespace MedicalAppointment.Api.Controllers
                 return StatusCode(500, "Databse error while saving patient");
             }
         }
+        [HttpGet]
+        public async Task<ActionResult<List<ReturnPatientDTO>>> GetAll()
+        {
+            var result = await _service.GetAllAsync();
+            return Ok(result);
+        }
         [HttpGet("{id:guid}")]
         public async Task<ActionResult<Patient>> GetById(Guid id)
         {
@@ -48,6 +54,16 @@ namespace MedicalAppointment.Api.Controllers
                 return NotFound();
 
             return Ok(patient);
+        }
+        [HttpDelete("{id:guid}")]
+        public async Task<IActionResult> Delete(Guid id)
+        {
+            var deleted = await _service.DeleteAsync(id);
+
+            if (!deleted)
+                return NotFound();
+
+            return NoContent();
         }
 
     }

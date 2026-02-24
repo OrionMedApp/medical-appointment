@@ -34,5 +34,15 @@ namespace MedicalAppointment.Infrastructure.Repositories
         }
 
 
+        public async Task<List<Patient>> GetAllAsync()
+        {
+            return await _context.Patients.ToListAsync();
+        }
+
+        public async Task DeleteAsync(Patient patient)
+        {
+            _context.Patients.Remove(patient);
+            await _context.SaveChangesAsync();
+        }
     }
 }

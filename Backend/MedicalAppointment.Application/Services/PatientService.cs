@@ -32,5 +32,28 @@ namespace MedicalAppointment.Application.Services
             var created = await _repository.AddAsync(newPatient);
             return created;
         }
+
+
+
+
+        public async Task<List<ReturnPatientDTO>> GetAllAsync()
+        {
+            var patients = await _repository.GetAllAsync();
+            return patients.Select(p => new ReturnPatientDTO
+            {
+                Id = p.Id,
+                FirstName = p.FirstName,
+                LastName = p.LastName
+            }).ToList();
+        }
+        public async Task<bool> DeleteAsync(Guid id)
+        {
+            var patient = await _repository.GetByIdAsync(id);
+            if (patient == null)
+                return false;
+            await _repository.DeleteAsync(patient);
+            return true;
+
+        }
     }
 }
