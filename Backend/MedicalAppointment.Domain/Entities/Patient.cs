@@ -16,7 +16,6 @@ namespace MedicalAppointment.Domain.Entities
         [Required, MaxLength(120)]
         public string LastName { get; set; }
 
-        // Contact info
         [MaxLength(120)]
         [EmailAddress]
         public string? Email { get; set; }
@@ -25,11 +24,23 @@ namespace MedicalAppointment.Domain.Entities
         [Phone]
         public string? Phone { get; set; }
 
-        // Medical ID (jedinstven)
       
         public Guid MedicalId { get; set; }
 
-        // Appointment history
         public List<Appointment> Appointments { get; set; } = new();
+        public Patient(string firstName, string lastName, string email, string phone, Guid medicalId)
+        {
+            if (string.IsNullOrWhiteSpace(firstName))
+                throw new Exception("First name is required");
+            if (string.IsNullOrWhiteSpace(lastName))
+                throw new Exception("Last name is required");
+            if (medicalId == Guid.Empty)
+                throw new Exception("MedicalId must be valid GUID");
+            FirstName = firstName;
+            LastName = lastName;
+            Email = email;
+            Phone = phone;
+            MedicalId = medicalId;
+        }
     }
 }

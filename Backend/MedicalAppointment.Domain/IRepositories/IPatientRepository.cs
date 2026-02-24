@@ -1,0 +1,16 @@
+﻿using MedicalAppointment.Domain.Entities;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace MedicalAppointment.Domain.IRepositories
+{
+    public interface IPatientRepository
+    {
+        Task<Patient?> GetByIdAsync(Guid id);
+        Task AddAsync(Patient patient);
+        
+    }
+}

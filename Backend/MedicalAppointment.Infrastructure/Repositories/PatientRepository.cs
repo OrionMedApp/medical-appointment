@@ -1,0 +1,37 @@
+﻿using MedicalAppointment.Domain.Entities;
+using MedicalAppointment.Infrastructure.Data;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
+using MedicalAppointment.Domain.IRepositories;
+
+namespace MedicalAppointment.Infrastructure.Repositories
+{
+    public class PatientRepository : IPatientRepository
+    {
+        private readonly AppDbContext _context;
+
+        public PatientRepository(AppDbContext context)
+        {
+            _context = context;
+        }
+
+        public async Task<Patient?> GetByIdAsync(Guid id)
+        {
+            return await _context.Patients
+                .Include(p => p.Appointments)
+                .FirstOrDefaultAsync(p => p.Id == id);
+        }
+
+        public async Task AddAsync(Patient patient)
+        {
+            await _context.Patients.AddAsync(patient);
+            await _context.SaveChangesAsync();
+        }
+
+
+    }
+}
