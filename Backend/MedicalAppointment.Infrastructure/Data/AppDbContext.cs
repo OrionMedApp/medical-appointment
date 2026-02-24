@@ -50,6 +50,7 @@ namespace MedicalAppointment.Infrastructure.Data
 
                 e.Property(d => d.FirstName).IsRequired().HasMaxLength(120);
                 e.Property(d => d.LastName).IsRequired().HasMaxLength(120);
+                e.Property(d => d.Email).IsRequired().HasMaxLength(120);
 
                 e.Property(d => d.Phone).IsRequired().HasMaxLength(40);
                 e.HasIndex(d => d.Phone).IsUnique();
@@ -71,16 +72,13 @@ namespace MedicalAppointment.Infrastructure.Data
                 e.Property(s => s.EndTime).IsRequired();
                 e.Property(s => s.IsBooked).IsRequired();
 
-                // ✅ filteri (prikaz slobodnih slotova za doktora)
                 e.HasIndex(s => new { s.DoctorId, s.StartTime });
                 e.HasIndex(s => new { s.DoctorId, s.IsBooked, s.StartTime });
 
-                // ✅ check: EndTime mora biti posle StartTime
                 e.ToTable(t => t.HasCheckConstraint(
                     "CK_AvailabilitySlot_EndAfterStart",
                     "[EndTime] > [StartTime]"));
 
-                // (opciono) da ne može dupli slot sa istim startom za doktora
                 e.HasIndex(s => new { s.DoctorId, s.StartTime }).IsUnique();
             });
 
