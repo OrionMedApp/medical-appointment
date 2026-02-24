@@ -13,13 +13,13 @@ namespace MedicalAppointment.Domain.Entities
         public Guid Id { get; private set; }
 
         [Required, MaxLength(120)]
-        public string FirstName { get; private set; } = default!;
+        public string FirstName { get; set; } = default!;
         [Required, MaxLength(120)]
-        public string LastName { get; private set; }
+        public string LastName { get; set; }
 
         // Specialization
         [Required, MaxLength(120)]
-        public Specialization Specialization { get; private set; } = default!;
+        public Specialization Specialization { get; set; } = default!;
 
         public string Email { get; set; }
 

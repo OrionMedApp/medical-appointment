@@ -1,4 +1,5 @@
 ﻿using MedicalAppointment.Application.DTOs.Doctor;
+using MedicalAppointment.Application.DTOs.Patient;
 using MedicalAppointment.Application.IServices;
 using MedicalAppointment.Domain.Entities;
 using MedicalAppointment.Domain.Exceptions;
@@ -47,6 +48,30 @@ namespace MedicalAppointment.Api.Controllers
                 return NotFound();
 
             return Ok(doctor);
+        }
+        [HttpPut("{id:guid}")]
+        public async Task<ActionResult<Doctor>> Update(Guid id, [FromBody] UpdateDoctorDTO dto)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            try
+            {
+                var updated = await _service.UpdateAsync(id, dto);
+
+                if (updated == null)
+                    return NotFound();
+
+                return Ok(updated);
+            }
+            catch (DomainValidationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (DbUpdateException)
+            {
+                return StatusCode(500, "Database error while updating doctor");
+            }
         }
     }
 }
