@@ -16,6 +16,7 @@ namespace MedicalAppointment.Infrastructure.Data
         public DbSet<Doctor> Doctors => Set<Doctor>();
         public DbSet<Patient> Patients => Set<Patient>();
         public DbSet<Appointment> Appointments => Set<Appointment>();
+        public DbSet<AvailablilitySlot> AvailabilitySlots => Set<AvailablilitySlot>();
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
         {
 
@@ -42,9 +43,11 @@ namespace MedicalAppointment.Infrastructure.Data
                 e.HasIndex(p => p.Phone).IsUnique();
             });
 
-  
+
             modelBuilder.Entity<Doctor>(e =>
             {
+                e.HasKey(d => d.Id);
+
                 e.Property(d => d.FirstName).IsRequired().HasMaxLength(120);
                 e.Property(d => d.LastName).IsRequired().HasMaxLength(120);
 
@@ -52,14 +55,38 @@ namespace MedicalAppointment.Infrastructure.Data
                 e.HasIndex(d => d.Phone).IsUnique();
 
                 e.Property(d => d.Specialization).IsRequired();
+
+
+                e.HasMany(d => d.AvailableSlots)
+                 .WithOne(s => s.Doctor)
+                 .HasForeignKey(s => s.DoctorId)
+                 .OnDelete(DeleteBehavior.Cascade);
             });
 
-   
+            modelBuilder.Entity<AvailablilitySlot>(e =>
+            {
+                e.HasKey(s => s.Id);
+
+                e.Property(s => s.StartTime).IsRequired();
+                e.Property(s => s.EndTime).IsRequired();
+                e.Property(s => s.IsBooked).IsRequired();
+
+                // ✅ filteri (prikaz slobodnih slotova za doktora)
+                e.HasIndex(s => new { s.DoctorId, s.StartTime });
+                e.HasIndex(s => new { s.DoctorId, s.IsBooked, s.StartTime });
+
+                // ✅ check: EndTime mora biti posle StartTime
+                e.ToTable(t => t.HasCheckConstraint(
+                    "CK_AvailabilitySlot_EndAfterStart",
+                    "[EndTime] > [StartTime]"));
+
+                // (opciono) da ne može dupli slot sa istim startom za doktora
+                e.HasIndex(s => new { s.DoctorId, s.StartTime }).IsUnique();
+            });
+
+
             modelBuilder.Entity<Appointment>(e =>
             {
-                e.Property(a => a.DateTime).IsRequired(); 
-                e.Property(a => a.Duration).IsRequired();
-
                 e.Property(a => a.Type).IsRequired();   
                 e.Property(a => a.Status).IsRequired();
 
@@ -75,17 +102,9 @@ namespace MedicalAppointment.Infrastructure.Data
                  .HasForeignKey(a => a.DoctorId)
                  .OnDelete(DeleteBehavior.Restrict);
 
-                e.HasIndex(a => a.DateTime);
-                e.HasIndex(a => new { a.DoctorId, a.DateTime });
-                e.HasIndex(a => new { a.PatientId, a.DateTime });
-
-                e.ToTable(t => t.HasCheckConstraint(
-                    "CK_Appointments_Duration_Positive",
-                    "[Duration] > 0"));
-
-                e.ToTable(t => t.HasCheckConstraint(
-                    "CK_Appointments_Date_NotPast",
-                    "[DateTime] >= GETDATE()"));
+                e.HasIndex(a => a.StartTime);
+                e.HasIndex(a => new { a.DoctorId, a.StartTime });
+                e.HasIndex(a => new { a.PatientId, a.StartTime });
 
             });
         }

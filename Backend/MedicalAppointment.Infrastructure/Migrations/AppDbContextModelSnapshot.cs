@@ -28,21 +28,22 @@ namespace MedicalAppointment.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTime>("DateTime")
-                        .HasColumnType("datetime2");
-
                     b.Property<Guid>("DoctorId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<int>("Duration")
-                        .HasColumnType("int");
+                    b.Property<DateTime>("EndTime")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("Notes")
+                        .IsRequired()
                         .HasMaxLength(2000)
                         .HasColumnType("nvarchar(2000)");
 
                     b.Property<Guid>("PatientId")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("StartTime")
+                        .HasColumnType("datetime2");
 
                     b.Property<int>("Status")
                         .HasColumnType("int");
@@ -52,17 +53,43 @@ namespace MedicalAppointment.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("DateTime");
+                    b.HasIndex("StartTime");
 
-                    b.HasIndex("DoctorId", "DateTime");
+                    b.HasIndex("DoctorId", "StartTime");
 
-                    b.HasIndex("PatientId", "DateTime");
+                    b.HasIndex("PatientId", "StartTime");
 
-                    b.ToTable("Appointments", t =>
+                    b.ToTable("Appointments");
+                });
+
+            modelBuilder.Entity("MedicalAppointment.Domain.Entities.AvailablilitySlot", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("DoctorId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("EndTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsBooked")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime>("StartTime")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DoctorId", "StartTime")
+                        .IsUnique();
+
+                    b.HasIndex("DoctorId", "IsBooked", "StartTime");
+
+                    b.ToTable("AvailabilitySlots", t =>
                         {
-                            t.HasCheckConstraint("CK_Appointments_Date_NotPast", "[DateTime] >= GETDATE()");
-
-                            t.HasCheckConstraint("CK_Appointments_Duration_Positive", "[Duration] > 0");
+                            t.HasCheckConstraint("CK_AvailabilitySlot_EndAfterStart", "[EndTime] > [StartTime]");
                         });
                 });
 
@@ -71,9 +98,6 @@ namespace MedicalAppointment.Infrastructure.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
-
-                    b.Property<int>("Availability")
-                        .HasColumnType("int");
 
                     b.Property<string>("FirstName")
                         .IsRequired()
@@ -164,9 +188,22 @@ namespace MedicalAppointment.Infrastructure.Migrations
                     b.Navigation("Patient");
                 });
 
+            modelBuilder.Entity("MedicalAppointment.Domain.Entities.AvailablilitySlot", b =>
+                {
+                    b.HasOne("MedicalAppointment.Domain.Entities.Doctor", "Doctor")
+                        .WithMany("AvailableSlots")
+                        .HasForeignKey("DoctorId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Doctor");
+                });
+
             modelBuilder.Entity("MedicalAppointment.Domain.Entities.Doctor", b =>
                 {
                     b.Navigation("Appointments");
+
+                    b.Navigation("AvailableSlots");
                 });
 
             modelBuilder.Entity("MedicalAppointment.Domain.Entities.Patient", b =>

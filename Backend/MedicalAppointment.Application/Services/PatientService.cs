@@ -28,7 +28,6 @@ namespace MedicalAppointment.Application.Services
         {
             Guid medicalId = Guid.NewGuid();
             Patient newPatient = new Patient(patient.FirstName, patient.LastName, patient.Email, patient.Phone, medicalId);
-                
             await _repository.AddAsync(newPatient);
             return newPatient;
         }
