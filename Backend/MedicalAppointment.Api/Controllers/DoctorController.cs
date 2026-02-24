@@ -1,4 +1,5 @@
 ﻿using MedicalAppointment.Application.DTOs.Doctor;
+using MedicalAppointment.Application.DTOs.Patient;
 using MedicalAppointment.Application.IServices;
 using MedicalAppointment.Domain.Entities;
 using MedicalAppointment.Domain.Exceptions;
@@ -47,6 +48,12 @@ namespace MedicalAppointment.Api.Controllers
                 return NotFound();
 
             return Ok(doctor);
+        }
+        [HttpGet]
+        public async Task<ActionResult<List<ReturnDoctorDTO>>> GetAll([FromQuery] int page = 1, [FromQuery] int pageSize = 20)
+        {
+            var doctors = await _service.GetAllAsync(page, pageSize);
+            return Ok(doctors);
         }
     }
 }

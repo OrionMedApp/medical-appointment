@@ -27,6 +27,28 @@ namespace MedicalAppointment.Application.Services
             return _doctor;
         }
 
+        public async Task<List<ReturnDoctorDTO>> GetAllAsync(int page = 1, int pageSize = 20)
+        {
+            var doctors = await _repository.GetAllAsync();
+
+
+            var paged = doctors
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .Select(p => new ReturnDoctorDTO
+                {
+                    Id = p.Id,
+                    FirstName = p.FirstName,
+                    LastName = p.LastName,
+                    Email = p.Email,
+                    Phone = p.Phone,
+                    Specialization = p.Specialization
+                })
+                .ToList();
+
+            return paged;
+        }
+
         public async Task<Doctor?> GetByIdAsync(Guid id)
         {
             return await _repository.GetByIdAsync(id);

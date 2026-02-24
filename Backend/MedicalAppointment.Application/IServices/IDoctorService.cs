@@ -12,5 +12,6 @@ namespace MedicalAppointment.Application.IServices
     {
         Task<Doctor?> GetByIdAsync(Guid id);
         Task<Doctor> CreateAsync(CreateDoctorDTO doctor);
+        Task<List<ReturnDoctorDTO>> GetAllAsync(int page = 1, int pageSize = 20);
     }
 }
