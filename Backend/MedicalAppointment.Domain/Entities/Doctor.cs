@@ -26,13 +26,13 @@ namespace MedicalAppointment.Domain.Entities
         // Assigned appointments
         public List<Appointment> Appointments { get; private set; } = new();
 
-        public int Availability { get; private set; }
+        public List<AvailablilitySlot> AvailableSlots { get; set; } = new();
     }
 
     public enum Specialization
     {
-        Dentist=1,
-        GeneralPracticioner=0,
+        GeneralPracticioner = 0,
+        Dentist =1,
         Surgeon=2
         
     }
