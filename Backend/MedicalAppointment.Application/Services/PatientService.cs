@@ -31,5 +31,14 @@ namespace MedicalAppointment.Application.Services
             await _repository.AddAsync(newPatient);
             return newPatient;
         }
+
+        public async Task<bool> DeleteAsync(Guid id)
+        {
+            var patient = await _repository.GetByIdAsync(id);
+            if (patient == null)
+                return false;
+            await _repository.DeleteAsync(patient);
+            return true;
+        }
     }
 }
