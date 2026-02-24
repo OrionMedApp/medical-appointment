@@ -5,9 +5,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MedicalAppointment.Application.DTOs
+namespace MedicalAppointment.Application.DTOs.Patient
 {
-    public class PatientDTO
+    public class CreatePatientDTO
     {
         [Required]
         [MaxLength(20)]

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MedicalAppointment.Domain.Exceptions;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -31,11 +32,11 @@ namespace MedicalAppointment.Domain.Entities
         public Patient(string firstName, string lastName, string email, string phone, Guid medicalId)
         {
             if (string.IsNullOrWhiteSpace(firstName))
-                throw new Exception("First name is required");
+                throw new DomainValidationException("First name is required");
             if (string.IsNullOrWhiteSpace(lastName))
-                throw new Exception("Last name is required");
+                throw new DomainValidationException("Last name is required");
             if (medicalId == Guid.Empty)
-                throw new Exception("MedicalId must be valid GUID");
+                throw new DomainValidationException("MedicalId must be valid GUID");
             FirstName = firstName;
             LastName = lastName;
             Email = email;

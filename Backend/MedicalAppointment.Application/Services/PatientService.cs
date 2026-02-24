@@ -1,4 +1,4 @@
-﻿using MedicalAppointment.Application.DTOs;
+﻿using MedicalAppointment.Application.DTOs.Patient;
 using MedicalAppointment.Application.IServices;
 using MedicalAppointment.Domain.Entities;
 using MedicalAppointment.Domain.IRepositories;
@@ -24,7 +24,7 @@ namespace MedicalAppointment.Application.Services
             return await _repository.GetByIdAsync(id);
         }
 
-        public async Task<Patient> CreateAsync(PatientDTO patient)
+        public async Task<Patient> CreateAsync(CreatePatientDTO patient)
         {
             Guid medicalId = Guid.NewGuid();
             Patient newPatient = new Patient(patient.FirstName, patient.LastName, patient.Email, patient.Phone, medicalId);
