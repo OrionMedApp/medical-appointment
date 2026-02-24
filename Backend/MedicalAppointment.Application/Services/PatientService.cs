@@ -34,16 +34,30 @@ namespace MedicalAppointment.Application.Services
             return created;
         }
 
-        public async Task<List<ReturnPatientDTO>> GetAllAsync()
+
+        public async Task<List<ReturnPatientDTO>> GetAllAsync(int page = 1, int pageSize = 20)
         {
+            
             var patients = await _repository.GetAllAsync();
-            return patients.Select(p => new ReturnPatientDTO
-            {
-                Id = p.Id,
-                FirstName = p.FirstName,
-                LastName = p.LastName
-            }).ToList();
+
+            
+            var paged = patients
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .Select(p => new ReturnPatientDTO
+                {
+                    Id = p.Id,
+                    FirstName = p.FirstName,
+                    LastName = p.LastName,
+                    Email = p.Email,
+                    Phone = p.Phone,
+                    MedicalId = p.MedicalId
+                })
+                .ToList();
+
+            return paged;
         }
+    
         public async Task<bool> DeleteAsync(Guid id)
         {
             var patient = await _repository.GetByIdAsync(id);
@@ -75,6 +89,10 @@ namespace MedicalAppointment.Application.Services
             await _repository.UpdateAsync(patient);
 
             return patient;
+        }
+        public Task<byte[]> GetAllPatientsCsvAsync()
+        {
+            throw new NotImplementedException();
         }
     }
 }
