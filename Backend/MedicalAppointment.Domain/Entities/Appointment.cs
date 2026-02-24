@@ -26,12 +26,12 @@ namespace MedicalAppointment.Domain.Entities
         public AppointmentStatus Status { get; set; }
 
         // Date & time
-        public DateTime DateTime { get; set; }
+        public DateTime StartTime { get; set; }
+        public DateTime EndTime { get; set; }
 
-        public int Duration { get; set; }
         // Notes
         [MaxLength(2000)]
-        public string? Notes { get; set; }
+        public string Notes { get; set; }
 
 
     }

@@ -26,17 +26,8 @@ namespace MedicalAppointment.Application.Services
 
         public async Task<Patient> CreateAsync(PatientDTO patient)
         {
-            var newPatient = new Patient
-            {
-                FirstName = patient.FirstName,
-                LastName = patient.LastName,
-                Email = patient.Email,
-                Phone = patient.Phone
-            };
-
-            newPatient.Id = Guid.NewGuid();
-            newPatient.MedicalId = Guid.NewGuid();
-
+            Guid medicalId = Guid.NewGuid();
+            Patient newPatient = new Patient(patient.FirstName, patient.LastName, patient.Email, patient.Phone, medicalId);
             await _repository.AddAsync(newPatient);
             return newPatient;
         }
