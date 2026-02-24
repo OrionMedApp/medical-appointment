@@ -30,5 +30,12 @@ namespace MedicalAppointment.Infrastructure.Repositories
             return await _context.Appointments
                 .FirstOrDefaultAsync(a => a.Id == id);
         }
+
+        public async Task<Appointment> UpdateAsync(Appointment appointment)
+        {
+            _context.Appointments.Update(appointment);
+            await _context.SaveChangesAsync();
+            return appointment;
+        }
     }
 }
