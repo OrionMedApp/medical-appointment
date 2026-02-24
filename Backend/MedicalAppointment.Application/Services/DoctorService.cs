@@ -27,6 +27,15 @@ namespace MedicalAppointment.Application.Services
             return _doctor;
         }
 
+        public async Task<bool> DeleteAsync(Guid id)
+        {
+           var doctor = await _repository.GetByIdAsync(id);
+            if (doctor == null)
+                return false;
+            await _repository.DeleteAsync(doctor);
+            return true;
+        }
+
         public async Task<List<ReturnDoctorDTO>> GetAllAsync(int page = 1, int pageSize = 20)
         {
             var doctors = await _repository.GetAllAsync();
