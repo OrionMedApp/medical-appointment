@@ -5,6 +5,7 @@
 #ifndef PROJECT_APP_HPP
 #define PROJECT_APP_HPP
 #include <iostream>
+#include "HospitalManager.hpp"
 
 using namespace std;
 
@@ -17,13 +18,16 @@ enum Operations {
 
 class App {
 public:
+    App(HospitalManager& hospitalManager) : hospitalManager(&hospitalManager) {}
     void run();
 
 private:
+    HospitalManager* hospitalManager;
     bool isRunning = false;
     void writeMenu();
     void stateMachine();
     int chooseOption();
+    void addDoctor();
 };
 
 

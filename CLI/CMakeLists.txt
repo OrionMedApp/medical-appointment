@@ -6,4 +6,10 @@ set(CMAKE_CXX_STANDARD 20)
 add_executable(Project
         App.cpp
         main.cpp
+        Doctor.cpp
+        Doctor.hpp
+        HospitalManager.cpp
+        HospitalManager.hpp
+        Validator.cpp
+        Validator.hpp
 )
