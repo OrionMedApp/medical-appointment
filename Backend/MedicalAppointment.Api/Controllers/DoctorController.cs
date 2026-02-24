@@ -79,5 +79,16 @@ namespace MedicalAppointment.Api.Controllers
                 return StatusCode(500, "Database error while updating doctor");
             }
         }
+
+        [HttpDelete("{id:guid}")]
+        public async Task<IActionResult> Delete(Guid id)
+        {
+            var deleted = await _service.DeleteAsync(id);
+
+            if (!deleted)
+                return NotFound();
+
+            return NoContent();
+        }
     }
 }
