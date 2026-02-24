@@ -2,9 +2,11 @@
 
 #include "App.hpp"
 
-int main() {
+#include "Doctor.hpp"
 
-    App* app = new App();
+int main() {
+    HospitalManager hospitalManager = HospitalManager();
+    App* app = new App(hospitalManager);
     app->run();
 
 }
