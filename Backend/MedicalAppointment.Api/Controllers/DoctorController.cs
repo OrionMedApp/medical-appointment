@@ -49,6 +49,12 @@ namespace MedicalAppointment.Api.Controllers
 
             return Ok(doctor);
         }
+        [HttpGet]
+        public async Task<ActionResult<List<ReturnDoctorDTO>>> GetAll([FromQuery] int page = 1, [FromQuery] int pageSize = 20)
+        {
+            var doctors = await _service.GetAllAsync(page, pageSize);
+            return Ok(doctors);
+        }
         [HttpPut("{id:guid}")]
         public async Task<ActionResult<Doctor>> Update(Guid id, [FromBody] UpdateDoctorDTO dto)
         {
