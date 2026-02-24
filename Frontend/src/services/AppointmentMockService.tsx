@@ -1,4 +1,4 @@
-import { Appointment } from "./Appointment.model";
+import { Appointment } from "../models/Appointment.model";
 
 export const events: Appointment[] = [
   {

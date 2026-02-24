@@ -1,8 +1,12 @@
 import { useMemo, useState } from "react";
-import { events } from "./AppointmentMockService";
-import { formatDateTime } from "./dateUtils";
-
+import { events } from "../services/AppointmentMockService";
+import { formatDateTime } from "../utils/dateUtils";
+import CreateAppointmentModal from "./CreateAppointmentModal";
 const AppointmentsPage = () => {
+
+  const [appointments, setAppointments] = useState(events);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
   const [selectedDoctor, setSelectedDoctor] = useState("");
   const [selectedType, setSelectedType] = useState("");
   const [selectedPatient, setSelectedPatient] = useState("");
@@ -10,7 +14,7 @@ const AppointmentsPage = () => {
   const [dateTo, setDateTo] = useState("");
 
   const filteredEvents = useMemo(() => {
-    return events.filter((event) => {
+    return appointments.filter((event) => {
       if (selectedDoctor && event.doctor !== selectedDoctor) return false;
       if (selectedType && event.type !== selectedType) return false;
       if (selectedPatient && event.patient !== selectedPatient) return false;
@@ -28,12 +32,17 @@ const AppointmentsPage = () => {
 
       return true;
     });
-  }, [selectedDoctor, selectedType, selectedPatient, dateFrom, dateTo]);
+  }, [appointments, selectedDoctor, selectedType, selectedPatient, dateFrom, dateTo]);
 
   return (
     <div style={{ padding: "20px" }}>
-      <h2 className="title">Pregled termina</h2>
-
+      
+    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+  <h2 className="title">Pregled termina</h2>
+  <button className="primary-btn" onClick={() => setIsModalOpen(true)}>
+    + Novi termin
+  </button>
+</div>
       <div className="filter-bar">
         <select className="filter-input" onChange={(e) => setSelectedDoctor(e.target.value)}>
           <option value="">Svi doktori</option>
@@ -103,8 +112,19 @@ const AppointmentsPage = () => {
             )}
           </tbody>
         </table>
+        
       </div>
+      {isModalOpen && (
+  <CreateAppointmentModal
+    appointments={appointments}
+    onClose={() => setIsModalOpen(false)}
+    onCreate={(newAppointment) =>
+      setAppointments((prev) => [...prev, newAppointment])
+    }
+  />
+)}
     </div>
+
   );
 };
 

@@ -19,7 +19,7 @@ function CreateAppointment() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // validacija
+    
     if (!formData.patient || !formData.doctor || !formData.datetime || !formData.type) {
       alert("Please fill in all mandatory fields!");
       return;
