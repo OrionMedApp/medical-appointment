@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MedicalAppointment.Domain.Exceptions;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -29,6 +30,19 @@ namespace MedicalAppointment.Domain.Entities
         public List<Appointment> Appointments { get; private set; } = new();
 
         public List<AvailablilitySlot> AvailableSlots { get; set; } = new();
+
+        public Doctor(string firstName, string lastName, string email, string phone, Specialization specialization)
+        {
+            if (string.IsNullOrWhiteSpace(firstName))
+                throw new DomainValidationException("First name is required");
+            if (string.IsNullOrWhiteSpace(lastName))
+                throw new DomainValidationException("Last name is required");
+            FirstName = firstName;
+            LastName = lastName;
+            Email = email;
+            Phone = phone;
+            Specialization = specialization;
+        }
     }
 
     public enum Specialization
@@ -37,5 +51,4 @@ namespace MedicalAppointment.Domain.Entities
         Dentist =1,
         Surgeon=2
         
-    }
-}
+    }}

@@ -10,9 +10,8 @@ namespace MedicalAppointment.Domain.IRepositories
     public interface IPatientRepository
     {
         Task<Patient?> GetByIdAsync(Guid id);
-        Task AddAsync(Patient patient);
-
-
+        Task<Patient> AddAsync(Patient patient);
+        
         Task<List<Patient>> GetAllAsync();
 
 
