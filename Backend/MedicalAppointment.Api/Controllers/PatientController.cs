@@ -39,6 +39,12 @@ namespace MedicalAppointment.Api.Controllers
                 return StatusCode(500, "Databse error while saving patient");
             }
         }
+        [HttpGet]
+        public async Task<ActionResult<List<ReturnPatientDTO>>> GetAll()
+        {
+            var result = await _service.GetAllAsync();
+            return Ok(result);
+        }
         [HttpGet("{id:guid}")]
         public async Task<ActionResult<Patient>> GetById(Guid id)
         {
