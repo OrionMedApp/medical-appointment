@@ -47,5 +47,15 @@ namespace MedicalAppointment.Infrastructure.Repositories
             await _context.SaveChangesAsync();
             return appointment;
         }
+
+        public async Task<List<Appointment>> GetAllAsync()
+        {
+            return await _context.Appointments
+                .AsNoTracking()
+                .Include(a => a.Doctor)
+                .Include(a => a.Patient)
+                .OrderByDescending(a => a.StartTime)
+                .ToListAsync();
+        }
     }
 }

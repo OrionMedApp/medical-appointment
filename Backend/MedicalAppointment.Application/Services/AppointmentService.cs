@@ -1,4 +1,6 @@
 ﻿using MedicalAppointment.Application.DTOs.Appointment;
+using MedicalAppointment.Application.DTOs.Doctor;
+using MedicalAppointment.Application.DTOs.Patient;
 using MedicalAppointment.Application.IServices;
 using MedicalAppointment.Domain.Entities;
 using MedicalAppointment.Domain.Exceptions;
@@ -41,7 +43,7 @@ namespace MedicalAppointment.Application.Services
 
                 throw new DomainValidationException("Invalid appointment status.");
             Appointment app = new Appointment(appoinment.PatientId, appoinment.DoctorId, appoinment.Type, appoinment.StartTime, appoinment.EndTime, appoinment.Notes);
-            return  await _repository.AddAsync(app);
+            return await _repository.AddAsync(app);
         }
 
         public async Task<bool> DeleteAsync(Guid id)
@@ -62,7 +64,7 @@ namespace MedicalAppointment.Application.Services
         }
 
 
-        public async Task<Appointment> UpdateAsync(Guid Id,UpdateAppointmentDTO appoinment)
+        public async Task<Appointment> UpdateAsync(Guid Id, UpdateAppointmentDTO appoinment)
         {
             var app = await _repository.GetByIdAsync(Id);
             if (app is null)
@@ -76,7 +78,7 @@ namespace MedicalAppointment.Application.Services
             if (doctor is null)
                 throw new DomainValidationException("Doctor does not exist");
 
-            
+
 
             if (appoinment.StartTime >= appoinment.EndTime)
                 throw new DomainValidationException("Start time must be before end time");
@@ -104,6 +106,41 @@ namespace MedicalAppointment.Application.Services
 
 
             return await _repository.UpdateAsync(app);
+        }
+
+        public async Task<List<ReturnAppointmentDTO>> GetAllAsync()
+        {
+            var appointments = await _repository.GetAllAsync();
+
+            return appointments.Select(a => new ReturnAppointmentDTO
+            {
+                Id = a.Id,
+                Type = a.Type,
+                Status = a.Status,
+                StartTime = a.StartTime,
+                EndTime = a.EndTime,
+                Notes = a.Notes ?? string.Empty,
+
+                Doctor = new ReturnDoctorDTO
+                {
+                    Id = a.Doctor.Id,
+                    FirstName = a.Doctor.FirstName,
+                    LastName = a.Doctor.LastName,
+                    Specialization = a.Doctor.Specialization,
+                    Email = a.Doctor.Email ?? string.Empty,
+                    Phone = a.Doctor.Phone ?? string.Empty
+                },
+
+                Patient = new ReturnPatientDTO
+                {
+                    Id = a.Patient.Id,
+                    FirstName = a.Patient.FirstName,
+                    LastName = a.Patient.LastName,
+                    Email = a.Patient.Email,
+                    Phone = a.Patient.Phone,
+                    MedicalId = a.Patient.MedicalId
+                }
+            }).ToList();
         }
     }
 }
