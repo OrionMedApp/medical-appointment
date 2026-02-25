@@ -1,4 +1,5 @@
 ﻿using MedicalAppointment.Application.DTOs.Appointment;
+using MedicalAppointment.Application.DTOs.Doctor;
 using MedicalAppointment.Domain.Entities;
 using System;
 using System.Collections.Generic;
@@ -32,6 +33,6 @@ namespace MedicalAppointment.Application.IServices
        string? sortBy,
        bool sortDesc
    );
-
+        Task<BulkInsertAppointmentsResponse> BulkInsertAsync(List<CreateAppointmentDTO> appointments);
     }
 }

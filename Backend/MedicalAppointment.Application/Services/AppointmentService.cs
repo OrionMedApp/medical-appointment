@@ -8,8 +8,10 @@ using MedicalAppointment.Domain.Exceptions;
 using MedicalAppointment.Domain.IRepositories;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace MedicalAppointment.Application.Services
@@ -149,16 +151,16 @@ namespace MedicalAppointment.Application.Services
 
 
         public async Task<List<ReturnAppointmentDTO>> GetAllFilteredAsync(
-    Guid? doctorId,
-    Guid? patientId,
-    AppointmentType? type,
-    AppointmentStatus? status,
-    DateTime? startFrom,
-    DateTime? startTo,
-    string? notesContains,
-    string? sortBy,
-    bool sortDesc)
-        {
+            Guid? doctorId,
+            Guid? patientId,
+            AppointmentType? type,
+            AppointmentStatus? status,
+            DateTime? startFrom,
+            DateTime? startTo,
+            string? notesContains,
+            string? sortBy,
+            bool sortDesc)
+                {
             // opcionalno: validacija enum-a (korisno ako stiže kao broj)
             if (type.HasValue && !Enum.IsDefined(typeof(AppointmentType), type.Value))
                 throw new DomainValidationException("Invalid appointment type.");
@@ -232,6 +234,79 @@ namespace MedicalAppointment.Application.Services
             }).ToList();
 
             return _csvExporter.ExportAppointments(dtoList);
+        }
+
+        public async Task<BulkInsertAppointmentsResponse> BulkInsertAsync(List<CreateAppointmentDTO> appointments)
+        {
+            var response = new BulkInsertAppointmentsResponse();
+
+            foreach (var dto in appointments)
+            {
+                var validationError = Validate(dto);
+
+                if (validationError != null)
+                {
+                    response.FailedRecords.Add(new FailedAppointmentsRecord
+                    {
+                        Appointment = dto,
+                        Error = validationError
+                    });
+                    continue;
+                }
+
+                try
+                {
+                    Appointment entity = new Appointment(
+                       dto.PatientId,
+                       dto.DoctorId,
+                       dto.Type,
+                       dto.StartTime,
+                       dto.EndTime,
+                       dto.Notes
+                   );
+                    entity.Status = dto.Status;
+
+                    await _repository.AddAsync(entity);
+
+                    response.SavedIds.Add(entity.Id);
+                }
+                catch (Exception ex)
+                {
+                    response.FailedRecords.Add(new FailedAppointmentsRecord
+                    {
+                        Appointment = dto,
+                        Error = ex.Message
+                    });
+                }
+            }
+
+            return response;
+        }
+
+        private string? Validate(CreateAppointmentDTO dto)
+        {
+            if (dto.PatientId == Guid.Empty)
+                return "PatientId must be a valid GUID";
+
+            if (dto.DoctorId == Guid.Empty)
+                return "DoctorId must be a valid GUID";
+
+            if (dto.StartTime >= dto.EndTime)
+                return "StartTime must be before EndTime";
+
+            if (dto.StartTime < DateTime.UtcNow)
+                return "Appointment cannot be scheduled in the past";
+
+            if (!string.IsNullOrWhiteSpace(dto.Notes) && dto.Notes.Length > 2000)
+                return "Notes cannot exceed 2000 characters";
+
+            if (!Enum.IsDefined(typeof(AppointmentType), dto.Type))
+                return "Invalid appointment type";
+
+            if (!Enum.IsDefined(typeof(AppointmentStatus), dto.Status))
+                return "Invalid appointment status";
+
+            return null; 
         }
     }
 }

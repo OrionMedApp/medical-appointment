@@ -1,4 +1,5 @@
 ﻿using MedicalAppointment.Application.DTOs.Appointment;
+using MedicalAppointment.Application.DTOs.Doctor;
 using MedicalAppointment.Application.IServices;
 using MedicalAppointment.Domain.Entities;
 using MedicalAppointment.Domain.Exceptions;
@@ -115,6 +116,17 @@ namespace MedicalAppointment.Api.Controllers
         {
             var csvBytes = await _appointmentService.GetAllAppointmentsCsvAsync();
             return File(csvBytes, "text/csv", "appointments.csv");
+        }
+
+        [HttpPost("bulk")]
+        public async Task<IActionResult> BulkInsert([FromBody] List<CreateAppointmentDTO> appointments)
+        {
+            if (appointments == null || !appointments.Any())
+                return BadRequest("Appointments list cannot be empty.");
+
+            var result = await _appointmentService.BulkInsertAsync(appointments);
+
+            return Ok(result);
         }
 
     }
