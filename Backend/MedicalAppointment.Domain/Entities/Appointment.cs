@@ -10,6 +10,7 @@ namespace MedicalAppointment.Domain.Entities
 {
     public class Appointment
     {
+    
         public Appointment(
             Guid patientId,
             Guid doctorId,
@@ -37,7 +38,7 @@ namespace MedicalAppointment.Domain.Entities
             PatientId = patientId;
             DoctorId = doctorId;
             Type = type;
-            Status = AppointmentStatus.Scheduled; 
+            Status = AppointmentStatus.Scheduled;
             StartTime = startTime;
             EndTime = endTime;
             Notes = notes ?? string.Empty;
@@ -70,9 +71,9 @@ namespace MedicalAppointment.Domain.Entities
     }
     public enum AppointmentType
     {
-        Consulatation=0,
-        FollowUp=1,
-        Emergency=2
+        Consulatation = 0,
+        FollowUp = 1,
+        Emergency = 2
 
     }
     public enum AppointmentStatus
@@ -81,4 +82,6 @@ namespace MedicalAppointment.Domain.Entities
         Completed = 1,
         Canceled = 2
     }
+
+   
 }
