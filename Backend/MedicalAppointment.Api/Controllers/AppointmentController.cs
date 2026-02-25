@@ -83,5 +83,12 @@ namespace MedicalAppointment.Api.Controllers
             return NoContent();
         }
 
+        [HttpGet]
+        public async Task<ActionResult<List<ReturnAppointmentDTO>>> GetAll()
+        {
+            var result = await _appointmentService.GetAllAsync();
+            return Ok(result);
+        }
+
     }
 }

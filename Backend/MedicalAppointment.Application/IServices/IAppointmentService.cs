@@ -13,9 +13,11 @@ namespace MedicalAppointment.Application.IServices
         Task<Appointment> GetByIdAsync(Guid guid);
         Task<Appointment> CreateAsync(CreateAppointmentDTO createAppointmentDTO);
 
-        Task<Appointment> UpdateAsync(Guid Id,UpdateAppointmentDTO updateAppointmentDTO);
+        Task<Appointment> UpdateAsync(Guid Id, UpdateAppointmentDTO updateAppointmentDTO);
 
         Task<bool> DeleteAsync(Guid id);
+
+        Task<List<ReturnAppointmentDTO>> GetAllAsync();
 
     }
 }
