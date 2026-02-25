@@ -1,4 +1,5 @@
-﻿using MedicalAppointment.Application.DTOs.Patient;
+﻿using MedicalAppointment.Application.DTOs.Appointment;
+using MedicalAppointment.Application.DTOs.Patient;
 using MedicalAppointment.Application.ExportCSV;
 using System;
 using System.Collections.Generic;
@@ -10,6 +11,38 @@ namespace MedicalAppointment.Infrastructure.ExportCSV
 {
     public class CsvExporter : ICsvExporter
     {
+        public byte[] ExportAppointments(IEnumerable<ReturnAppointmentDTO> appointments)
+        {
+            var sb = new StringBuilder();
+
+            sb.AppendLine("Id,PatientId,PatientFullName,PatientEmail,PatientPhone," +
+                          "DoctorId,DoctorFullName,DoctorEmail,DoctorPhone,Specialization," +
+                          "Type,Status,StartTime,EndTime,Notes");
+
+            foreach (var a in appointments)
+            {
+                sb.AppendLine(
+                    $"{a.Id}," +
+                    $"{a.Patient.Id}," +
+                    $"{Escape(a.Patient.FullName)}," +
+                    $"{Escape(a.Patient.Email)}," +
+                    $"{Escape(a.Patient.Phone)}," +
+                    $"{a.Doctor.Id}," +
+                    $"{Escape(a.Doctor.FullName)}," +
+                    $"{Escape(a.Doctor.Email)}," +
+                    $"{Escape(a.Doctor.Phone)}," +
+                    $"{a.Doctor.Specialization}," +
+                    $"{a.Type}," +
+                    $"{a.Status}," +
+                    $"{a.StartTime:O}," +
+                    $"{a.EndTime:O}," +
+                    $"{Escape(a.Notes)}"
+                );
+            }
+
+            return Encoding.UTF8.GetBytes(sb.ToString());
+        }
+
         public byte[] ExportPatients(IEnumerable<ReturnPatientDTO> patients)
         {
             var sb = new StringBuilder();
@@ -38,4 +71,5 @@ namespace MedicalAppointment.Infrastructure.ExportCSV
             return value;
         }
     }
+
 }

@@ -18,6 +18,7 @@ namespace MedicalAppointment.Application.IServices
         Task<bool> DeleteAsync(Guid id);
 
         Task<List<ReturnAppointmentDTO>> GetAllAsync();
+        Task<byte[]> GetAllAppointmentsCsvAsync();
 
     }
 }
