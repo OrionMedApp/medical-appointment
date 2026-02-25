@@ -1,4 +1,5 @@
-﻿using MedicalAppointment.Application.DTOs.Patient;
+﻿using MedicalAppointment.Application.DTOs.Doctor;
+using MedicalAppointment.Application.DTOs.Patient;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,6 +10,7 @@ namespace MedicalAppointment.Application.ExportCSV
 {
     public interface ICsvExporter
     {
+        byte[] ExportDoctors(List<ReturnDoctorDTO> dtoList);
         byte[] ExportPatients(IEnumerable<ReturnPatientDTO> patients);
     }
 }
