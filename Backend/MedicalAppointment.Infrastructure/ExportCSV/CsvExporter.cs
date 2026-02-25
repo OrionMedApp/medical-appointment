@@ -1,4 +1,5 @@
-﻿using MedicalAppointment.Application.DTOs.Appointment;
+using MedicalAppointment.Application.DTOs.Appointment;
+using MedicalAppointment.Application.DTOs.Doctor;
 using MedicalAppointment.Application.DTOs.Patient;
 using MedicalAppointment.Application.ExportCSV;
 using System;
@@ -11,6 +12,7 @@ namespace MedicalAppointment.Infrastructure.ExportCSV
 {
     public class CsvExporter : ICsvExporter
     {
+
         public byte[] ExportAppointments(IEnumerable<ReturnAppointmentDTO> appointments)
         {
             var sb = new StringBuilder();
@@ -38,6 +40,21 @@ namespace MedicalAppointment.Infrastructure.ExportCSV
                     $"{a.EndTime:O}," +
                     $"{Escape(a.Notes)}"
                 );
+                    }
+
+    return Encoding.UTF8.GetBytes(sb.ToString());
+}
+
+        public byte[] ExportDoctors(List<ReturnDoctorDTO> doctors)
+        {
+            var sb = new StringBuilder();
+
+            sb.AppendLine("Id,FirstName,LastName,Email,Phone,Specialization");
+
+            foreach (var d in doctors)
+            {
+                sb.AppendLine($"{d.Id},{Escape(d.FirstName)},{Escape(d.LastName)},{Escape(d.Email)},{Escape(d.Phone)},{d.Specialization}");
+
             }
 
             return Encoding.UTF8.GetBytes(sb.ToString());

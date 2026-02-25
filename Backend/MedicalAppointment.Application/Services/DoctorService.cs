@@ -1,4 +1,5 @@
 ﻿using MedicalAppointment.Application.DTOs.Doctor;
+using MedicalAppointment.Application.ExportCSV;
 using MedicalAppointment.Application.IServices;
 using MedicalAppointment.Domain.Entities;
 using MedicalAppointment.Domain.Exceptions;
@@ -14,10 +15,12 @@ namespace MedicalAppointment.Application.Services
     public class DoctorService : IDoctorService
     {
         private readonly IDoctorRepository _repository;
+        private readonly ICsvExporter _csvExporter;
 
-        public DoctorService(IDoctorRepository repository)
+        public DoctorService(IDoctorRepository repository, ICsvExporter csvExporter)
         {
             _repository = repository;
+            _csvExporter = csvExporter;
         }
         public async Task<Doctor> CreateAsync(CreateDoctorDTO doctor)
         {
@@ -57,6 +60,24 @@ namespace MedicalAppointment.Application.Services
 
             return paged;
         }
+
+        public async Task<byte[]> GetAllDoctorsCsvAsync()
+        {
+            var doctors = await _repository.GetAllAsync();
+
+            var dtoList = doctors.Select(d => new ReturnDoctorDTO
+            {
+                Id = d.Id,
+                FirstName = d.FirstName,
+                LastName = d.LastName,
+                Email = d.Email,
+                Phone = d.Phone,
+                Specialization = d.Specialization
+            }).ToList();
+
+            return _csvExporter.ExportDoctors(dtoList);
+        }
+        
 
         public async Task<Doctor?> GetByIdAsync(Guid id)
         {
