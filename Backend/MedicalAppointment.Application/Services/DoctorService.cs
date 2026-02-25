@@ -1,4 +1,5 @@
-﻿using MedicalAppointment.Application.DTOs.Doctor;
+﻿using MedicalAppointment.Application.DTOs.AvailableSlot;
+using MedicalAppointment.Application.DTOs.Doctor;
 using MedicalAppointment.Application.ExportCSV;
 using MedicalAppointment.Application.IServices;
 using MedicalAppointment.Domain.Entities;
@@ -16,11 +17,14 @@ namespace MedicalAppointment.Application.Services
     {
         private readonly IDoctorRepository _repository;
         private readonly ICsvExporter _csvExporter;
+        private readonly IAvailabilitySlotRepository _availabilitySlotRepository;
 
-        public DoctorService(IDoctorRepository repository, ICsvExporter csvExporter)
+        public DoctorService(IDoctorRepository repository, ICsvExporter csvExporter, IAvailabilitySlotRepository availabilitySlotRepository)
         {
             _repository = repository;
             _csvExporter = csvExporter;
+            _availabilitySlotRepository = availabilitySlotRepository;
+
         }
         public async Task<Doctor> CreateAsync(CreateDoctorDTO doctor)
         {
@@ -110,5 +114,21 @@ namespace MedicalAppointment.Application.Services
 
             return doctor;
         }
+        public async Task<List<ReturnAvailabilitySlotDTO>> GetAvailableSlotsByDoctorAndDate(
+     Guid? doctorId,
+     DateTime? date)
+        {
+            var slots = await _availabilitySlotRepository.GetByDoctorAndDateAsync(doctorId, date);
+
+            return slots.Select(s => new ReturnAvailabilitySlotDTO
+            {
+                Id = s.Id,
+                StartTime = s.StartTime,
+                EndTime = s.EndTime,
+                IsBooked = s.IsBooked,
+                DoctorId = s.DoctorId
+            }).ToList();
+        }
+
     }
 }

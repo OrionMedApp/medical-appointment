@@ -1,6 +1,7 @@
 ﻿using MedicalAppointment.Application.DTOs.Doctor;
 using MedicalAppointment.Application.DTOs.Patient;
 using MedicalAppointment.Application.IServices;
+using MedicalAppointment.Application.Services;
 using MedicalAppointment.Domain.Entities;
 using MedicalAppointment.Domain.Exceptions;
 using Microsoft.AspNetCore.Mvc;
@@ -97,5 +98,18 @@ namespace MedicalAppointment.Api.Controllers
             var csvBytes = await _service.GetAllDoctorsCsvAsync();
             return File(csvBytes, "text/csv", "doctors.csv");
         }
+
+
+
+        
+        [HttpGet("available-slots")]
+        public async Task<IActionResult> GetAvailableSlots(
+    [FromQuery] Guid? doctorId,
+    [FromQuery] DateTime? date)
+        {
+            var result = await _service.GetAvailableSlotsByDoctorAndDate(doctorId, date);
+            return Ok(result);
+        }
+    
     }
 }
