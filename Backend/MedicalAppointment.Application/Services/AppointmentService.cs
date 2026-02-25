@@ -53,5 +53,31 @@ namespace MedicalAppointment.Application.Services
         {
             return await _repository.GetByIdAsync(id);
         }
+
+
+        public async Task<Appointment> UpdateAsync(Guid Id,UpdateAppointmentDTO appoinment)
+        {
+            var app = await _repository.GetByIdAsync(Id);
+            if (app is null)
+                throw new DomainValidationException("Appointment does not exist");
+
+            var patient = await _patientRepository.GetByIdAsync(appoinment.PatientId);
+            if (patient is null)
+                throw new DomainValidationException("Patient does not exist");
+
+            var doctor = await _doctorRepository.GetByIdAsync(appoinment.DoctorId);
+            if (doctor is null)
+                throw new DomainValidationException("Doctor does not exist");
+            app.Status = appoinment.Status;
+            app.PatientId = appoinment.PatientId;
+            app.DoctorId = appoinment.DoctorId;
+            app.Type = appoinment.Type;
+            app.StartTime = appoinment.StartTime;
+            app.EndTime = appoinment.EndTime;
+            app.Notes = appoinment.Notes;
+
+           
+            return await _repository.UpdateAsync(app);
+        }
     }
 }

@@ -15,7 +15,7 @@ namespace MedicalAppointment.Api.Controllers
         private readonly IAppointmentService _appointmentService;
         public AppointmentController(IAppointmentService appointmentService)
         {
-            _appointmentService= appointmentService;
+            _appointmentService = appointmentService;
         }
 
         [HttpPost]
@@ -50,6 +50,28 @@ namespace MedicalAppointment.Api.Controllers
             return Ok(appointment);
         }
 
+
+        [HttpPut("{id:guid}")]
+        public async Task<ActionResult<Appointment>> Update(Guid id, [FromBody] UpdateAppointmentDTO dto)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+            try
+            {
+                var updated = await _appointmentService.UpdateAsync(id, dto);
+                if (updated == null)
+                    return NotFound();
+                return Ok(updated);
+            }
+            catch (DomainValidationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (DbUpdateException)
+            {
+                return StatusCode(500, "Database error while updating appointment");
+            }
+        }
         [HttpDelete("{id:guid}")]
         public async Task<IActionResult> Delete(Guid id)
         {

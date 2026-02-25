@@ -8,8 +8,9 @@ using System.Threading.Tasks;
 
 namespace MedicalAppointment.Application.DTOs.Appointment
 {
-    public class CreateAppointmentDTO
+    public class UpdateAppointmentDTO
     {
+
         [Required]
         public Guid PatientId { get; set; }
 
@@ -34,9 +35,9 @@ namespace MedicalAppointment.Application.DTOs.Appointment
         public DateTime EndTime { get; set; }
 
         [MaxLength(2000)]
-
         [Required]
         public string Notes { get; set; }
 
     }
 }
+

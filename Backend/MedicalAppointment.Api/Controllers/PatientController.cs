@@ -23,7 +23,7 @@ namespace MedicalAppointment.Api.Controllers
         [HttpPost]
         public async Task<ActionResult<Patient>> Create([FromBody] CreatePatientDTO patient)
         {
-            if(!ModelState.IsValid)
+            if (!ModelState.IsValid)
                 return BadRequest(ModelState);
             try
             {
@@ -34,8 +34,9 @@ namespace MedicalAppointment.Api.Controllers
             {
                 return BadRequest(ex.Message);
             }
-          
-            catch (DbUpdateException) {
+
+            catch (DbUpdateException)
+            {
                 return StatusCode(500, "Databse error while saving patient");
             }
         }
@@ -95,6 +96,8 @@ namespace MedicalAppointment.Api.Controllers
             var csvBytes = await _service.GetAllPatientsCsvAsync();
             return File(csvBytes, "text/csv", "patients.csv");
         }
+
+
 
     }
 }
