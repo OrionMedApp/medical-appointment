@@ -97,5 +97,18 @@ namespace MedicalAppointment.Api.Controllers
             var csvBytes = await _service.GetAllDoctorsCsvAsync();
             return File(csvBytes, "text/csv", "doctors.csv");
         }
+
+        [HttpPost("bulk")]
+        public async Task<IActionResult> BulkInsert([FromBody] List<CreateDoctorDTO> doctors)
+        {
+            if (doctors == null || !doctors.Any())
+                return BadRequest("Doctors list cannot be empty.");
+
+            var result = await _service.BulkInsertAsync(doctors);
+
+            return Ok(result);
+        }
+
+
     }
 }
