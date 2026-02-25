@@ -50,6 +50,7 @@ namespace MedicalAppointment.Api.Controllers
             return Ok(appointment);
         }
 
+
         [HttpPut("{id:guid}")]
         public async Task<ActionResult<Appointment>> Update(Guid id, [FromBody] UpdateAppointmentDTO dto)
         {
@@ -70,6 +71,16 @@ namespace MedicalAppointment.Api.Controllers
             {
                 return StatusCode(500, "Database error while updating appointment");
             }
+        }
+        [HttpDelete("{id:guid}")]
+        public async Task<IActionResult> Delete(Guid id)
+        {
+            var deleted = await _appointmentService.DeleteAsync(id);
+
+            if (!deleted)
+                return NotFound();
+
+            return NoContent();
         }
 
     }
