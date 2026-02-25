@@ -7,12 +7,14 @@
 #include <vector>
 
 #include "Doctor.hpp"
+#include "Patient.hpp"
 
 
 class HospitalManager {
 
 public:
     void addSaveDoctor(Doctor& d);
+    void addSavePatient(Patient& p);
 private:
     std::vector<Doctor> doctors;
     const std::string doctors_file = "doctors.json";

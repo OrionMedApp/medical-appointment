@@ -28,6 +28,7 @@ private:
     void stateMachine();
     int chooseOption();
     void addDoctor();
+    void addPatient();
 };
 
 
