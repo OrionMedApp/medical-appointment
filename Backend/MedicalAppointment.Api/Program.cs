@@ -49,7 +49,7 @@ builder.Services.AddScoped<IAppointmentService, AppointmentService>();
 builder.Services.AddScoped<IDoctorRepository, DoctorRepository>();
 builder.Services.AddScoped<IDoctorService, DoctorService>();
 builder.Services.AddScoped<ICsvExporter, CsvExporter>();
-
+builder.Services.AddScoped<IAvailabilitySlotRepository, AvailabilitySlotRepository>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
