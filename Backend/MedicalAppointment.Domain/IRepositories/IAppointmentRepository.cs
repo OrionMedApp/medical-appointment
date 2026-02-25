@@ -11,5 +11,7 @@ namespace MedicalAppointment.Domain.IRepositories
     {
         Task<Appointment> GetByIdAsync(Guid id);
         Task<Appointment> AddAsync(Appointment appointment);
+
+        Task<bool> DeleteAsync(Guid id);
     }
 }

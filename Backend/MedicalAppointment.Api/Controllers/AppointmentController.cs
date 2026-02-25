@@ -50,5 +50,16 @@ namespace MedicalAppointment.Api.Controllers
             return Ok(appointment);
         }
 
+        [HttpDelete("{id:guid}")]
+        public async Task<IActionResult> Delete(Guid id)
+        {
+            var deleted = await _appointmentService.DeleteAsync(id);
+
+            if (!deleted)
+                return NotFound();
+
+            return NoContent();
+        }
+
     }
 }

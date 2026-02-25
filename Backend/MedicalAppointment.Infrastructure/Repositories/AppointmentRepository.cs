@@ -25,6 +25,16 @@ namespace MedicalAppointment.Infrastructure.Repositories
             return appointment;
         }
 
+        public async Task<bool> DeleteAsync(Guid id)
+        {
+            var entity = await _context.Appointments.FirstOrDefaultAsync(x => x.Id == id);
+            if (entity is null) return false;
+
+            _context.Appointments.Remove(entity);
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
         public async Task<Appointment?> GetByIdAsync(Guid id)
         {
             return await _context.Appointments
