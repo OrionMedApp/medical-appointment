@@ -101,6 +101,7 @@ namespace MedicalAppointment.Api.Controllers
 
 
 
+
         
         [HttpGet("available-slots")]
         public async Task<IActionResult> GetAvailableSlots(
@@ -111,5 +112,19 @@ namespace MedicalAppointment.Api.Controllers
             return Ok(result);
         }
     
+
+        [HttpPost("bulk")]
+        public async Task<IActionResult> BulkInsert([FromBody] List<CreateDoctorDTO> doctors)
+        {
+            if (doctors == null || !doctors.Any())
+                return BadRequest("Doctors list cannot be empty.");
+
+            var result = await _service.BulkInsertAsync(doctors);
+
+            return Ok(result);
+        }
+
+
+
     }
 }

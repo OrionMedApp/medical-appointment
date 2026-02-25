@@ -18,6 +18,10 @@ namespace MedicalAppointment.Application.IServices
         Task<Doctor?> UpdateAsync(Guid id, UpdateDoctorDTO dto);
         Task<bool> DeleteAsync(Guid id);
         Task<byte[]> GetAllDoctorsCsvAsync();
+
         Task<List<ReturnAvailabilitySlotDTO>> GetAvailableSlotsByDoctorAndDate(Guid? doctorId, DateTime? date);
+
+        Task<BulkInsertDoctorsResponse> BulkInsertAsync(List<CreateDoctorDTO> doctors);
+
     }
 }
