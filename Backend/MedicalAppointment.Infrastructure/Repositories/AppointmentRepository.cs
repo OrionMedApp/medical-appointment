@@ -97,15 +97,33 @@ namespace MedicalAppointment.Infrastructure.Repositories
             }
 
             // sort (default StartTime)
-            sortBy = (sortBy ?? "StartTime").Trim().ToLowerInvariant();
+            sortBy = string.IsNullOrWhiteSpace(sortBy)
+    ? "starttime"
+    : sortBy.Trim().ToLowerInvariant();
 
             list = sortBy switch
             {
-                "endtime" => (sortDesc ? list.OrderByDescending(a => a.EndTime) : list.OrderBy(a => a.EndTime)).ToList(),
-                "status" => (sortDesc ? list.OrderByDescending(a => a.Status) : list.OrderBy(a => a.Status)).ToList(),
-                "type" => (sortDesc ? list.OrderByDescending(a => a.Type) : list.OrderBy(a => a.Type)).ToList(),
-                _ => (sortDesc ? list.OrderByDescending(a => a.StartTime) : list.OrderBy(a => a.StartTime)).ToList(),
+                "endtime" => (sortDesc
+                    ? list.OrderByDescending(a => a.EndTime)
+                    : list.OrderBy(a => a.EndTime)).ToList(),
+
+                "status" => (sortDesc
+                    ? list.OrderByDescending(a => a.Status)
+                    : list.OrderBy(a => a.Status)).ToList(),
+
+                "type" => (sortDesc
+                    ? list.OrderByDescending(a => a.Type)
+                    : list.OrderBy(a => a.Type)).ToList(),
+
+                // DEFAULT: StartTime DESC (najnoviji StartTime na vrhu)
+                "starttime" => (sortDesc
+                    ? list.OrderByDescending(a => a.StartTime)
+                    : list.OrderBy(a => a.StartTime)).ToList(),
+
+                // fallback ako proslediš neku glupost
+                _ => list.OrderByDescending(a => a.StartTime).ToList(),
             };
+
 
             return list;
         }
