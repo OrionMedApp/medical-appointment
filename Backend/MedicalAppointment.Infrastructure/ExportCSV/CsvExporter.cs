@@ -1,4 +1,5 @@
-﻿using MedicalAppointment.Application.DTOs.Doctor;
+using MedicalAppointment.Application.DTOs.Appointment;
+using MedicalAppointment.Application.DTOs.Doctor;
 using MedicalAppointment.Application.DTOs.Patient;
 using MedicalAppointment.Application.ExportCSV;
 using System;
@@ -11,6 +12,39 @@ namespace MedicalAppointment.Infrastructure.ExportCSV
 {
     public class CsvExporter : ICsvExporter
     {
+
+        public byte[] ExportAppointments(IEnumerable<ReturnAppointmentDTO> appointments)
+        {
+            var sb = new StringBuilder();
+
+            sb.AppendLine("Id,PatientId,PatientFullName,PatientEmail,PatientPhone," +
+                          "DoctorId,DoctorFullName,DoctorEmail,DoctorPhone,Specialization," +
+                          "Type,Status,StartTime,EndTime,Notes");
+
+            foreach (var a in appointments)
+            {
+                sb.AppendLine(
+                    $"{a.Id}," +
+                    $"{a.Patient.Id}," +
+                    $"{Escape(a.Patient.FullName)}," +
+                    $"{Escape(a.Patient.Email)}," +
+                    $"{Escape(a.Patient.Phone)}," +
+                    $"{a.Doctor.Id}," +
+                    $"{Escape(a.Doctor.FullName)}," +
+                    $"{Escape(a.Doctor.Email)}," +
+                    $"{Escape(a.Doctor.Phone)}," +
+                    $"{a.Doctor.Specialization}," +
+                    $"{a.Type}," +
+                    $"{a.Status}," +
+                    $"{a.StartTime:O}," +
+                    $"{a.EndTime:O}," +
+                    $"{Escape(a.Notes)}"
+                );
+                    }
+
+    return Encoding.UTF8.GetBytes(sb.ToString());
+}
+
         public byte[] ExportDoctors(List<ReturnDoctorDTO> doctors)
         {
             var sb = new StringBuilder();
@@ -20,6 +54,7 @@ namespace MedicalAppointment.Infrastructure.ExportCSV
             foreach (var d in doctors)
             {
                 sb.AppendLine($"{d.Id},{Escape(d.FirstName)},{Escape(d.LastName)},{Escape(d.Email)},{Escape(d.Phone)},{d.Specialization}");
+
             }
 
             return Encoding.UTF8.GetBytes(sb.ToString());
@@ -53,4 +88,5 @@ namespace MedicalAppointment.Infrastructure.ExportCSV
             return value;
         }
     }
+
 }
