@@ -1,3 +1,4 @@
+using MedicalAppointment.Api.OpenAI;
 using MedicalAppointment.Application.ExportCSV;
 using MedicalAppointment.Application.IServices;
 using MedicalAppointment.Application.Services;
@@ -42,6 +43,9 @@ builder.Services.AddScoped<IAppointmentService, AppointmentService>();
 builder.Services.AddScoped<IDoctorRepository, DoctorRepository>();
 builder.Services.AddScoped<IDoctorService, DoctorService>();
 builder.Services.AddScoped<ICsvExporter, CsvExporter>();
+
+builder.Services.Configure<OpenAiOptions>(builder.Configuration.GetSection("OpenAI"));
+builder.Services.AddHttpClient<OpenAiClient>();
 
 var app = builder.Build();
 
