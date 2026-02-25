@@ -22,6 +22,8 @@ const AppointmentsPage = () => {
       return "status-completed";
     case AppointmentStatus.Cancelled:
       return "status-cancelled";
+    default:
+      return "";
   }
 };
 
@@ -45,6 +47,31 @@ const AppointmentsPage = () => {
       return true;
     });
   }, [appointments, selectedDoctor, selectedType, selectedPatient, dateFrom, dateTo]);
+
+
+    //delete
+
+    const handleDelete = async (id: number) => {
+      const confirmed = window.confirm("Da li ste sigurni da želite da obrišete termin?");
+      if (!confirmed) return;
+
+      try {
+        const response = await fetch(`http://localhost:7001/api/Appointment/${id}`, {
+          method: "DELETE",
+        });
+
+        if (!response.ok) {
+          throw new Error("Greška prilikom brisanja termina");
+        }
+        
+        setAppointments((prev) => prev.filter((a) => a.id !== id));
+      } catch (error) {
+        console.error(error);
+        alert("Došlo je do greške prilikom brisanja termina.");
+      }
+    };
+
+
 
   return (
     <div style={{ padding: "20px" }}>
@@ -103,12 +130,13 @@ const AppointmentsPage = () => {
               <th>Status</th>
               <th>Početak</th>
               <th>Kraj</th>
+              <th>Akcije</th>
             </tr>
           </thead>
           <tbody>
             {filteredEvents.length === 0 ? (
               <tr>
-                <td colSpan={6} style={{ textAlign: "center" }}>
+                <td colSpan={7} style={{ textAlign: "center" }}>
                   Nema termina
                 </td>
               </tr>
@@ -119,10 +147,20 @@ const AppointmentsPage = () => {
                   <td>{event.patient}</td>
                   <td>{event.type}</td>
                   <td><span className={`status-badge ${getStatusClass(event.status)}`}>
-    {event.status}
-  </span></td>
+                      {event.status}
+                      </span>
+                  </td>
                   <td>{formatDateTime(event.start)}</td>
                   <td>{formatDateTime(event.end)}</td>
+                  <td>
+                    <button
+                      className="icon-btn danger"
+                      onClick={() => handleDelete(event.id)}
+                      title="Obriši termin"
+                    >
+                      🗑️
+                    </button>
+                  </td>
                 </tr>
               ))
             )}
