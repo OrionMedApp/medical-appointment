@@ -57,5 +57,57 @@ namespace MedicalAppointment.Infrastructure.Repositories
                 .OrderByDescending(a => a.StartTime)
                 .ToListAsync();
         }
+        public async Task<List<Appointment>> GetAllFilteredAsync(
+    Guid? doctorId,
+    Guid? patientId,
+    AppointmentType? type,
+    AppointmentStatus? status,
+    DateTime? startFrom,
+    DateTime? startTo,
+    string? notesContains,
+    string? sortBy,
+    bool sortDesc)
+        {
+            // UZMI SVE preko postojeće metode (sa Include-ovima)
+            var list = await GetAllAsync();
+
+            // filteri
+            if (doctorId.HasValue && doctorId.Value != Guid.Empty)
+                list = list.Where(a => a.DoctorId == doctorId.Value).ToList();
+
+            if (patientId.HasValue && patientId.Value != Guid.Empty)
+                list = list.Where(a => a.PatientId == patientId.Value).ToList();
+
+            if (type.HasValue)
+                list = list.Where(a => a.Type == type.Value).ToList();
+
+            if (status.HasValue)
+                list = list.Where(a => a.Status == status.Value).ToList();
+
+            if (startFrom.HasValue)
+                list = list.Where(a => a.StartTime >= startFrom.Value).ToList();
+
+            if (startTo.HasValue)
+                list = list.Where(a => a.StartTime <= startTo.Value).ToList();
+
+            if (!string.IsNullOrWhiteSpace(notesContains))
+            {
+                var s = notesContains.Trim();
+                list = list.Where(a => (a.Notes ?? "").Contains(s)).ToList();
+            }
+
+            // sort (default StartTime)
+            sortBy = (sortBy ?? "StartTime").Trim().ToLowerInvariant();
+
+            list = sortBy switch
+            {
+                "endtime" => (sortDesc ? list.OrderByDescending(a => a.EndTime) : list.OrderBy(a => a.EndTime)).ToList(),
+                "status" => (sortDesc ? list.OrderByDescending(a => a.Status) : list.OrderBy(a => a.Status)).ToList(),
+                "type" => (sortDesc ? list.OrderByDescending(a => a.Type) : list.OrderBy(a => a.Type)).ToList(),
+                _ => (sortDesc ? list.OrderByDescending(a => a.StartTime) : list.OrderBy(a => a.StartTime)).ToList(),
+            };
+
+            return list;
+        }
     }
 }

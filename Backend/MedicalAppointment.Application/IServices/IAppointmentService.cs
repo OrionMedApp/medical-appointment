@@ -19,5 +19,17 @@ namespace MedicalAppointment.Application.IServices
 
         Task<List<ReturnAppointmentDTO>> GetAllAsync();
 
+        Task<List<ReturnAppointmentDTO>> GetAllFilteredAsync(
+       Guid? doctorId,
+       Guid? patientId,
+       AppointmentType? type,
+       AppointmentStatus? status,
+       DateTime? startFrom,
+       DateTime? startTo,
+       string? notesContains,
+       string? sortBy,
+       bool sortDesc
+   );
+
     }
 }

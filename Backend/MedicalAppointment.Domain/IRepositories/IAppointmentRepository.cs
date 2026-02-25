@@ -17,5 +17,17 @@ namespace MedicalAppointment.Domain.IRepositories
         Task<bool> DeleteAsync(Guid id);
 
         Task<List<Appointment>> GetAllAsync();
+
+        Task<List<Appointment>> GetAllFilteredAsync(
+        Guid? doctorId,
+        Guid? patientId,
+        AppointmentType? type,
+        AppointmentStatus? status,
+        DateTime? startFrom,
+        DateTime? startTo,
+        string? notesContains,
+        string? sortBy,
+        bool sortDesc
+    );
     }
 }

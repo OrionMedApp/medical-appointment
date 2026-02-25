@@ -142,5 +142,57 @@ namespace MedicalAppointment.Application.Services
                 }
             }).ToList();
         }
+
+        public async Task<List<ReturnAppointmentDTO>> GetAllFilteredAsync(
+    Guid? doctorId,
+    Guid? patientId,
+    AppointmentType? type,
+    AppointmentStatus? status,
+    DateTime? startFrom,
+    DateTime? startTo,
+    string? notesContains,
+    string? sortBy,
+    bool sortDesc)
+        {
+            // opcionalno: validacija enum-a (korisno ako stiže kao broj)
+            if (type.HasValue && !Enum.IsDefined(typeof(AppointmentType), type.Value))
+                throw new DomainValidationException("Invalid appointment type.");
+
+            if (status.HasValue && !Enum.IsDefined(typeof(AppointmentStatus), status.Value))
+                throw new DomainValidationException("Invalid appointment status.");
+
+            var appointments = await _repository.GetAllFilteredAsync(
+                doctorId, patientId, type, status, startFrom, startTo, notesContains, sortBy, sortDesc);
+
+            return appointments.Select(a => new ReturnAppointmentDTO
+            {
+                Id = a.Id,
+                Type = a.Type,
+                Status = a.Status,
+                StartTime = a.StartTime,
+                EndTime = a.EndTime,
+                Notes = a.Notes ?? string.Empty,
+
+                Doctor = new ReturnDoctorDTO
+                {
+                    Id = a.Doctor.Id,
+                    FirstName = a.Doctor.FirstName,
+                    LastName = a.Doctor.LastName,
+                    Specialization = a.Doctor.Specialization,
+                    Email = a.Doctor.Email ?? string.Empty,
+                    Phone = a.Doctor.Phone ?? string.Empty
+                },
+
+                Patient = new ReturnPatientDTO
+                {
+                    Id = a.Patient.Id,
+                    FirstName = a.Patient.FirstName,
+                    LastName = a.Patient.LastName,
+                    Email = a.Patient.Email,
+                    Phone = a.Patient.Phone,
+                    MedicalId = a.Patient.MedicalId
+                }
+            }).ToList();
+        }
     }
 }
