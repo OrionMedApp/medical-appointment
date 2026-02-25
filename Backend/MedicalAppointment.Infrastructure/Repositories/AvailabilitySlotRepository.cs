@@ -40,5 +40,19 @@ namespace MedicalAppointment.Infrastructure.Repositories
 
             return await query.ToListAsync();
         }
+
+        public async Task<AvailablilitySlot?> GetExactAsync(Guid doctorId, DateTime start, DateTime end)
+        {
+            return await _context.AvailabilitySlots.FirstOrDefaultAsync(s =>
+                    s.DoctorId == doctorId &&
+                    s.StartTime == start &&
+                    s.EndTime == end);
+        }
+
+        public async Task UpdateAsync(AvailablilitySlot slot)
+        {
+            _context.AvailabilitySlots.Update(slot);
+            await _context.SaveChangesAsync();
+        }
     }
 }

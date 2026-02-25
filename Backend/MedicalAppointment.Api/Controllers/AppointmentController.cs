@@ -90,32 +90,5 @@ namespace MedicalAppointment.Api.Controllers
             return Ok(result);
         }
 
-
-        [HttpGet("filtered")]
-        public async Task<ActionResult<List<ReturnAppointmentDTO>>> GetAllFilter(
-        [FromQuery] Guid? doctorId,
-        [FromQuery] Guid? patientId,
-        [FromQuery] AppointmentType? type,
-        [FromQuery] AppointmentStatus? status,
-        [FromQuery] DateTime? startFrom,
-        [FromQuery] DateTime? startTo,
-        [FromQuery] string? notesContains,
-        [FromQuery] string? sortBy,
-        [FromQuery] bool sortDesc = true)
-        {
-            var result = await _appointmentService.GetAllFilteredAsync(
-                doctorId, patientId, type, status, startFrom, startTo, notesContains, sortBy, sortDesc);
-
-            return Ok(result);
-        }
-
-
-        [HttpGet("export")]
-        public async Task<IActionResult> ExportAppointmentsCsv()
-        {
-            var csvBytes = await _appointmentService.GetAllAppointmentsCsvAsync();
-            return File(csvBytes, "text/csv", "appointments.csv");
-        }
-
     }
 }

@@ -20,15 +20,18 @@ namespace MedicalAppointment.Application.Services
         private readonly IPatientRepository _patientRepository;
         private readonly IDoctorRepository _doctorRepository;
         private readonly ICsvExporter _csvExporter;
+        private readonly IAvailabilitySlotRepository _slotRepository;
         public AppointmentService(IAppointmentRepository repository,
             IPatientRepository patientRepository,
             IDoctorRepository doctorRepository,
-            ICsvExporter csvExporter)
+            ICsvExporter csvExporter,
+            IAvailabilitySlotRepository slotRepository)
         {
             _repository = repository;
             _patientRepository = patientRepository;
             _doctorRepository = doctorRepository;
             _csvExporter = csvExporter;
+            _slotRepository = slotRepository;
         }
         public async Task<Appointment> CreateAsync(CreateAppointmentDTO appoinment)
         {
@@ -68,46 +71,91 @@ namespace MedicalAppointment.Application.Services
         }
 
 
-        public async Task<Appointment> UpdateAsync(Guid Id, UpdateAppointmentDTO appoinment)
+        public async Task<Appointment> UpdateAsync(Guid Id, UpdateAppointmentDTO dto)
         {
             var app = await _repository.GetByIdAsync(Id);
             if (app is null)
                 throw new DomainValidationException("Appointment does not exist");
 
-            var patient = await _patientRepository.GetByIdAsync(appoinment.PatientId);
+            var patient = await _patientRepository.GetByIdAsync(dto.PatientId);
             if (patient is null)
                 throw new DomainValidationException("Patient does not exist");
 
-            var doctor = await _doctorRepository.GetByIdAsync(appoinment.DoctorId);
+            var doctor = await _doctorRepository.GetByIdAsync(dto.DoctorId);
             if (doctor is null)
                 throw new DomainValidationException("Doctor does not exist");
 
-
-
-            if (appoinment.StartTime >= appoinment.EndTime)
-                throw new DomainValidationException("Start time must be before end time");
-
-            if (appoinment.StartTime < DateTime.UtcNow)
-                throw new DomainValidationException("Appointment cannot be scheduled in the past");
-
-            if (!string.IsNullOrWhiteSpace(appoinment.Notes) && appoinment.Notes.Length > 2000)
-                throw new DomainValidationException("Notes cannot exceed 2000 characters");
-
-            app.Status = appoinment.Status;
-            app.PatientId = appoinment.PatientId;
-            app.DoctorId = appoinment.DoctorId;
-            app.Type = appoinment.Type;
-            app.StartTime = appoinment.StartTime;
-            app.EndTime = appoinment.EndTime;
-            app.Notes = appoinment.Notes;
-            if (!Enum.IsDefined(typeof(AppointmentType), appoinment.Type))
-
+            if (!Enum.IsDefined(typeof(AppointmentType), dto.Type))
                 throw new DomainValidationException("Invalid appointment type.");
 
-            if (!Enum.IsDefined(typeof(AppointmentStatus), appoinment.Status))
-
+            if (!Enum.IsDefined(typeof(AppointmentStatus), dto.Status))
                 throw new DomainValidationException("Invalid appointment status.");
 
+            if (dto.StartTime >= dto.EndTime)
+                throw new DomainValidationException("Start time must be before end time");
+
+            if (dto.StartTime < DateTime.UtcNow)
+                throw new DomainValidationException("Appointment cannot be scheduled in the past");
+
+            if (!string.IsNullOrWhiteSpace(dto.Notes) && dto.Notes.Length > 2000)
+                throw new DomainValidationException("Notes cannot exceed 2000 characters");
+
+            // 🔹 zapamti stari slot
+            var oldDoctorId = app.DoctorId;
+            var oldStart = app.StartTime;
+            var oldEnd = app.EndTime;
+
+            bool slotChanged =
+                oldDoctorId != dto.DoctorId ||
+                oldStart != dto.StartTime ||
+                oldEnd != dto.EndTime;
+
+            bool statusChangedToCanceled =
+                app.Status != AppointmentStatus.Canceled &&
+                dto.Status == AppointmentStatus.Canceled;
+
+            // 🔴 Ako se termin otkazuje → oslobodi slot
+            if (statusChangedToCanceled)
+            {
+                var oldSlot = await _slotRepository.GetExactAsync(oldDoctorId, oldStart, oldEnd);
+                if (oldSlot != null)
+                {
+                    oldSlot.IsBooked = false;
+                    await _slotRepository.UpdateAsync(oldSlot);
+                }
+            }
+            // 🔵 Ako se menja slot (doktor ili vreme)
+            else if (slotChanged)
+            {
+                // novi slot mora postojati
+                var newSlot = await _slotRepository.GetExactAsync(dto.DoctorId, dto.StartTime, dto.EndTime);
+                if (newSlot is null)
+                    throw new DomainValidationException("Selected slot does not exist for this doctor.");
+
+                if (newSlot.IsBooked)
+                    throw new DomainValidationException("Selected slot is already booked.");
+
+                // oslobodi stari slot
+                var oldSlot = await _slotRepository.GetExactAsync(oldDoctorId, oldStart, oldEnd);
+                if (oldSlot != null)
+                {
+                    oldSlot.IsBooked = false;
+                    await _slotRepository.UpdateAsync(oldSlot);
+                }
+
+                // rezerviši novi slot
+                newSlot.IsBooked = true;
+                await _slotRepository.UpdateAsync(newSlot);
+            }
+
+            // 🔹 update appointment podataka
+            app.Status = dto.Status;
+            app.PatientId = dto.PatientId;
+            app.DoctorId = dto.DoctorId;
+            app.Type = dto.Type;
+            app.StartTime = dto.StartTime;
+            app.EndTime = dto.EndTime;
+            app.Notes = dto.Notes;
 
             return await _repository.UpdateAsync(app);
         }
