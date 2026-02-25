@@ -12,4 +12,7 @@ add_executable(Project
         HospitalManager.hpp
         Validator.cpp
         Validator.hpp
+        Patient.cpp
+        Patient.hpp
 )
+target_link_libraries(Project ole32 uuid)

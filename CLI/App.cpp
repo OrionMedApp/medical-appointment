@@ -62,6 +62,38 @@ void App::addDoctor() {
     cout << "Doctor added" << endl;
 }
 
+void App::addPatient() {
+   string first_name, last_name,email,phoneNumber;
+    std::cout << "--- Add New Patient ---" << endl;
+    std::cout << "First name: "; std::getline(std::cin >> std::ws, first_name);
+    if (!Validator::isValidName(first_name)) {
+        std::cout << "Invalid first name!" << endl << endl;
+        return;
+    }
+    std::cout << "Last name: "; std::getline(std::cin >> std::ws, last_name);
+    if (!Validator::isValidName(last_name)) {
+        std::cout << "Invalid last name!" << endl << endl;
+        return;
+    }
+    std::cout << "Email: "; std::getline(std::cin >> std::ws, email);
+    if (!Validator::isValidEmail(email)) {
+        std::cout << "Invalid email!" << endl << endl;
+        return;
+    }
+    std::cout << "Phone: "; std::getline(std::cin, phoneNumber);
+    if (!Validator::isValidPhone(phoneNumber)) {
+        std::cout << "Invalid phone!" << endl << endl;
+        return;
+    }
+
+    //medicalID GUID
+    string medicalID = Validator::generateMedicalID();
+
+    Patient p(first_name, last_name, email, phoneNumber, medicalID);
+    hospitalManager->addSavePatient(p);
+    cout << "Patient added! Medical ID: " << medicalID << endl << endl;
+}
+
 void App::stateMachine() {
     try {
         switch (chooseOption()) {
@@ -70,6 +102,8 @@ void App::stateMachine() {
                 addDoctor();
                 break;
             case ADD_PATIENT:
+                addPatient();
+                break;
             case STORE_ENTRIES:
             case TRACK_APPOINTMENTS:
             case SYNC_DOCTORS:

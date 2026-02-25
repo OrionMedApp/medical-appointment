@@ -27,3 +27,19 @@ void HospitalManager::addSaveDoctor(Doctor& d) {
     outFile << doctors.dump(4);
     outFile.close();
 }
+void HospitalManager::addSavePatient(Patient& p) {
+    std::ifstream inFile(patients_file);
+    json patients;
+    if (inFile.good()) {
+        inFile >> patients;
+        inFile.close();
+    } else {
+        patients = json::array();
+    }
+
+    patients.push_back(p);
+
+    std::ofstream outFile(patients_file);
+    outFile << patients.dump(4);
+    outFile.close();
+}
