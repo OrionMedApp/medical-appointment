@@ -12,25 +12,27 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+
 *{
   box-sizing: border-box;
 }
+
 body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
   background-color: #fff;
 }
+
 a {
   font-weight: 500;
   color: #646cff;
   text-decoration: inherit;
 }
+
 a:hover {
   color: #535bf2;
 }
-
-
 
 .title{
   font-size: 2em;
@@ -142,20 +144,16 @@ button:focus-visible {
   font-weight: 600;
 }
 
-
-
 @media (max-width: 768px) {
   .table {
     min-width: 600px;
   }
-
   .table th,
   .table td {
     padding: 10px;
     font-size: 13px;
   }
 }
-
 
 .filter-bar {
   padding: 18px;
@@ -213,9 +211,7 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover {
   }
 }
 
-
 /* -----------modal----------------- */
-
 
 .modal-overlay {
   position: fixed;
@@ -227,7 +223,6 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover {
   align-items: center;
   z-index: 1000;
 }
-
 
 .modal {
   background: #ffffff;
@@ -314,18 +309,15 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover {
   background: #3d74a8;
 }
 
-
 .error {
   color: #e74c3c;
   font-size: 13px;
 }
 
-
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(-10px); }
   to { opacity: 1; transform: translateY(0); }
 }
-
 
 /********** ENUM **********/
 .status-badge {
@@ -349,4 +341,38 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover {
 .status-cancelled {
   background: #fdecea;
   color: #c82333;
+}
+
+/* ----------- pdf ------------------ */
+@media print {
+
+  .filter-bar {
+    display: none !important;
+  }
+
+  .primary-btn,
+  .secondary-btn {
+    display: none !important;
+  }
+
+  .card {
+    box-shadow: none;
+  }
+
+  body {
+    background: white;
+  }
+
+}
+.secondary-btn {
+  background: #6c757d;
+  color: white;
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+}
+
+.secondary-btn:hover {
+  background: #5a6268;
 }

@@ -50,27 +50,38 @@ const AppointmentsPage = () => {
     <div style={{ padding: "20px" }}>
       
     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-  <h2 className="title">Pregled termina</h2>
-  <button className="primary-btn" onClick={() => setIsModalOpen(true)}>
-    + Novi termin
-  </button>
+  <h2 className="title">Appointments Overview</h2>
+  <div style={{ display: "flex", gap: "10px" }}>
+    <button
+      className="secondary-btn"
+      onClick={() => window.print()}
+    >
+      Download as PDF
+    </button>
+    <button
+      className="primary-btn"
+      onClick={() => setIsModalOpen(true)}
+    >
+      + New Appointment
+    </button>
+  </div>
 </div>
       <div className="filter-bar">
         <select className="filter-input" onChange={(e) => setSelectedDoctor(e.target.value)}>
-          <option value="">Svi doktori</option>
+          <option value="">All doctors</option>
           <option value="Dr Marković">Dr Marković</option>
           <option value="Dr Jovanović">Dr Jovanović</option>
         </select>
 
         <select className="filter-input" onChange={(e) => setSelectedType(e.target.value)}>
-          <option value="">Svi tipovi</option>
+          <option value="">All types</option>
           <option value="Pregled">Pregled</option>
           <option value="Kontrola">Kontrola</option>
           <option value="Konsultacija">Konsultacija</option>
         </select>
 
         <select className="filter-input" onChange={(e) => setSelectedPatient(e.target.value)}>
-          <option value="">Svi pacijenti</option>
+          <option value="">All patients</option>
           <option value="Petar Petrović">Petar Petrović</option>
           <option value="Marko Marković">Marko Marković</option>
           <option value="Janko Janković">Janko Janković</option>
@@ -97,19 +108,19 @@ const AppointmentsPage = () => {
         <table className="table">
           <thead>
             <tr>
-              <th>Doktor</th>
-              <th>Pacijent</th>
-              <th>Tip</th>
+              <th>Doctor</th>
+              <th>Patient</th>
+              <th>Type</th>
               <th>Status</th>
-              <th>Početak</th>
-              <th>Kraj</th>
+              <th>Start</th>
+              <th>End</th>
             </tr>
           </thead>
           <tbody>
             {filteredEvents.length === 0 ? (
               <tr>
                 <td colSpan={6} style={{ textAlign: "center" }}>
-                  Nema termina
+                  No appointments found
                 </td>
               </tr>
             ) : (
