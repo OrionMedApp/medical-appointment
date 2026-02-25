@@ -1,23 +1,23 @@
+export interface Appointment {
+  id: string;                
+  doctor: string;            
+  patient: string;           
+  type: string;              
+  status: AppointmentStatus; 
+  start: Date;
+  end: Date;
+  notes: string;
+}
 
-export interface Appointment{
-     id: number,
-     doctor: string,
-     patient: string,
-     type: string,
-     status:AppointmentStatus,
-     start: Date,
-     notes:string,
-     end: Date
+export interface CreateAppointmentDto {
+  doctorId: string; 
+  patientId: string; 
+  type: number;       
+  startTime: string;  
+  endTime: string;    
+  notes: string;
 }
-export interface CreateAppointmentDto{
-     doctor: string,
-     patient: string,
-     type: string,
-     start: Date,
-     end: Date,
-     status: AppointmentStatus,
-     notes:string,
-}
+
 export enum AppointmentStatus {
   Scheduled = "Scheduled",
   Completed = "Completed",

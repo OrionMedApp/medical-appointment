@@ -1,4 +1,8 @@
-﻿using MedicalAppointment.Application.DTOs.Doctor;
+using MedicalAppointment.Application.DTOs.AvailableSlot;
+using MedicalAppointment.Application.DTOs.Doctor;
+
+using MedicalAppointment.Application.DTOs.Doctor;
+using MedicalAppointment.Application.DTOs.Patient;
 using MedicalAppointment.Application.ExportCSV;
 using MedicalAppointment.Application.IServices;
 using MedicalAppointment.Domain.Entities;
@@ -6,8 +10,10 @@ using MedicalAppointment.Domain.Exceptions;
 using MedicalAppointment.Domain.IRepositories;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace MedicalAppointment.Application.Services
@@ -16,12 +22,78 @@ namespace MedicalAppointment.Application.Services
     {
         private readonly IDoctorRepository _repository;
         private readonly ICsvExporter _csvExporter;
+        private readonly IAvailabilitySlotRepository _availabilitySlotRepository;
 
-        public DoctorService(IDoctorRepository repository, ICsvExporter csvExporter)
+        public DoctorService(IDoctorRepository repository, ICsvExporter csvExporter, IAvailabilitySlotRepository availabilitySlotRepository)
         {
             _repository = repository;
             _csvExporter = csvExporter;
+            _availabilitySlotRepository = availabilitySlotRepository;
+
         }
+       
+        public async Task<BulkInsertDoctorsResponse> BulkInsertAsync(List<CreateDoctorDTO> doctors)
+        {
+            var response = new BulkInsertDoctorsResponse();
+
+            foreach (var dto in doctors)
+            {
+                var validationError = Validate(dto);
+
+                if (validationError != null)
+                {
+                    response.FailedRecords.Add(new FailedDoctorRecord
+                    {
+                        Doctor = dto,
+                        Error = validationError
+                    });
+                    continue;
+                }
+
+                try
+                {
+                    Doctor entity = new Doctor(dto.FirstName, dto.LastName, dto.Email, dto.Phone, dto.Specialization);
+
+
+                    await _repository.AddAsync(entity);
+
+                    response.SavedIds.Add(entity.Id);
+                }
+                catch (Exception ex)
+                {
+                    response.FailedRecords.Add(new FailedDoctorRecord
+                    {
+                        Doctor = dto,
+                        Error = ex.Message
+                    });
+                }
+            }
+
+            return response;
+        }
+
+        private string? Validate(CreateDoctorDTO dto)
+        {
+            if (string.IsNullOrWhiteSpace(dto.FirstName))
+                return "First name is required";
+
+            if (string.IsNullOrWhiteSpace(dto.LastName))
+                return "Last name is required";
+
+            if (!new EmailAddressAttribute().IsValid(dto.Email))
+                return "Invalid email";
+
+            if (string.IsNullOrWhiteSpace(dto.Phone))
+                return "Phone is required";
+
+            var phoneRegex = new Regex(@"^(?:\+3816\d{7,8}|06\d{7,8})$");
+
+            if (!phoneRegex.IsMatch(dto.Phone))
+                return "Phone must be Serbian number in format +3816xxxxxxx";
+
+            return null;
+        }
+
         public async Task<Doctor> CreateAsync(CreateDoctorDTO doctor)
         {
             Guid medicalId = Guid.NewGuid();
@@ -110,5 +182,22 @@ namespace MedicalAppointment.Application.Services
 
             return doctor;
         }
+        public async Task<List<ReturnAvailabilitySlotDTO>> GetAvailableSlotsByDoctorAndDate(
+     Guid? doctorId,
+     DateTime? date)
+        {
+            var slots = await _availabilitySlotRepository.GetByDoctorAndDateAsync(doctorId, date);
+
+            return slots.Select(s => new ReturnAvailabilitySlotDTO
+            {
+                Id = s.Id,
+                StartTime = s.StartTime,
+                EndTime = s.EndTime,
+                IsBooked = s.IsBooked,
+                DoctorId = s.DoctorId
+            }).ToList();
+        }
+
+
     }
 }

@@ -22,8 +22,6 @@ namespace MedicalAppointment.Infrastructure.Repositories
         public async Task<Doctor?> GetByIdAsync(Guid id)
         {
             return await _context.Doctors
-                .Include(p => p.Appointments)
-                .Include(p=>p.AvailableSlots)
                 .FirstOrDefaultAsync(p => p.Id == id);
         }
         public async Task AddAsync(Doctor doctor)
