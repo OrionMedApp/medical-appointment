@@ -90,5 +90,12 @@ namespace MedicalAppointment.Api.Controllers
 
             return NoContent();
         }
+
+        [HttpGet("export")]
+        public async Task<IActionResult> ExportDoctorsCsv()
+        {
+            var csvBytes = await _service.GetAllDoctorsCsvAsync();
+            return File(csvBytes, "text/csv", "doctors.csv");
+        }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using MedicalAppointment.Application.DTOs.Appointment;
 using MedicalAppointment.Application.DTOs.Doctor;
 using MedicalAppointment.Application.DTOs.Patient;
+using MedicalAppointment.Application.ExportCSV;
 using MedicalAppointment.Application.IServices;
 using MedicalAppointment.Domain.Entities;
 using MedicalAppointment.Domain.Exceptions;
@@ -18,13 +19,16 @@ namespace MedicalAppointment.Application.Services
         private readonly IAppointmentRepository _repository;
         private readonly IPatientRepository _patientRepository;
         private readonly IDoctorRepository _doctorRepository;
+        private readonly ICsvExporter _csvExporter;
         public AppointmentService(IAppointmentRepository repository,
             IPatientRepository patientRepository,
-            IDoctorRepository doctorRepository)
+            IDoctorRepository doctorRepository,
+            ICsvExporter csvExporter)
         {
             _repository = repository;
             _patientRepository = patientRepository;
             _doctorRepository = doctorRepository;
+            _csvExporter = csvExporter;
         }
         public async Task<Appointment> CreateAsync(CreateAppointmentDTO appoinment)
         {
@@ -143,6 +147,7 @@ namespace MedicalAppointment.Application.Services
             }).ToList();
         }
 
+
         public async Task<List<ReturnAppointmentDTO>> GetAllFilteredAsync(
     Guid? doctorId,
     Guid? patientId,
@@ -194,5 +199,40 @@ namespace MedicalAppointment.Application.Services
                 }
             }).ToList();
         }
+        public async Task<byte[]> GetAllAppointmentsCsvAsync()
+        {
+            var appointments = await _repository.GetAllAsync();
+
+            var dtoList = appointments.Select(a => new ReturnAppointmentDTO
+            {
+                Id = a.Id,
+                Type = a.Type,
+                Status = a.Status,
+                StartTime = a.StartTime,
+                EndTime = a.EndTime,
+                Notes = a.Notes,
+                Doctor = new ReturnDoctorDTO
+                {
+                    Id = a.Doctor.Id,
+                    FirstName = a.Doctor.FirstName,
+                    LastName = a.Doctor.LastName,
+                    Email = a.Doctor.Email,
+                    Phone = a.Doctor.Phone,
+                    Specialization = a.Doctor.Specialization,
+                },
+                Patient = new ReturnPatientDTO
+                {
+                    Id = a.Patient.Id,
+                    FirstName = a.Patient.FirstName,
+                    LastName = a.Patient.LastName,
+                    Email = a.Patient.Email,
+                    Phone = a.Patient.Phone,
+                    MedicalId = a.Patient.MedicalId
+                }
+            }).ToList();
+
+            return _csvExporter.ExportAppointments(dtoList);
+        }
     }
 }
+

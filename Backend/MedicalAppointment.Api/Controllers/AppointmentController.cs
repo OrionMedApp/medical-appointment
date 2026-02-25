@@ -90,6 +90,7 @@ namespace MedicalAppointment.Api.Controllers
             return Ok(result);
         }
 
+
         [HttpGet("filtered")]
         public async Task<ActionResult<List<ReturnAppointmentDTO>>> GetAllFilter(
         [FromQuery] Guid? doctorId,
@@ -106,6 +107,14 @@ namespace MedicalAppointment.Api.Controllers
                 doctorId, patientId, type, status, startFrom, startTo, notesContains, sortBy, sortDesc);
 
             return Ok(result);
+        }
+
+
+        [HttpGet("export")]
+        public async Task<IActionResult> ExportAppointmentsCsv()
+        {
+            var csvBytes = await _appointmentService.GetAllAppointmentsCsvAsync();
+            return File(csvBytes, "text/csv", "appointments.csv");
         }
 
     }

@@ -18,6 +18,8 @@ namespace MedicalAppointment.Application.IServices
         Task<bool> DeleteAsync(Guid id);
 
         Task<List<ReturnAppointmentDTO>> GetAllAsync();
+        Task<byte[]> GetAllAppointmentsCsvAsync();
+
 
         Task<List<ReturnAppointmentDTO>> GetAllFilteredAsync(
        Guid? doctorId,
