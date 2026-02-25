@@ -1,0 +1,146 @@
+﻿using MedicalAppointment.Application.DTOs.Appointment;
+using MedicalAppointment.Application.DTOs.Doctor;
+using MedicalAppointment.Application.DTOs.Patient;
+using MedicalAppointment.Application.IServices;
+using MedicalAppointment.Domain.Entities;
+using MedicalAppointment.Domain.Exceptions;
+using MedicalAppointment.Domain.IRepositories;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace MedicalAppointment.Application.Services
+{
+    public class AppointmentService : IAppointmentService
+    {
+        private readonly IAppointmentRepository _repository;
+        private readonly IPatientRepository _patientRepository;
+        private readonly IDoctorRepository _doctorRepository;
+        public AppointmentService(IAppointmentRepository repository,
+            IPatientRepository patientRepository,
+            IDoctorRepository doctorRepository)
+        {
+            _repository = repository;
+            _patientRepository = patientRepository;
+            _doctorRepository = doctorRepository;
+        }
+        public async Task<Appointment> CreateAsync(CreateAppointmentDTO appoinment)
+        {
+            var patient = await _patientRepository.GetByIdAsync(appoinment.PatientId);
+            if (patient is null)
+                throw new DomainValidationException("Patient does not exist");
+
+            var doctor = await _doctorRepository.GetByIdAsync(appoinment.DoctorId);
+            if (doctor is null)
+                throw new DomainValidationException("Doctor does not exist");
+            if (!Enum.IsDefined(typeof(AppointmentType), appoinment.Type))
+
+                throw new DomainValidationException("Invalid appointment type.");
+
+            if (!Enum.IsDefined(typeof(AppointmentStatus), appoinment.Status))
+
+                throw new DomainValidationException("Invalid appointment status.");
+            Appointment app = new Appointment(appoinment.PatientId, appoinment.DoctorId, appoinment.Type, appoinment.StartTime, appoinment.EndTime, appoinment.Notes);
+            return await _repository.AddAsync(app);
+        }
+
+        public async Task<bool> DeleteAsync(Guid id)
+        {
+            var appointment = await _repository.GetByIdAsync(id);
+
+            if (appointment == null)
+                return false;
+
+            await _repository.DeleteAsync(id);
+
+            return true;
+        }
+
+        public async Task<Appointment?> GetByIdAsync(Guid id)
+        {
+            return await _repository.GetByIdAsync(id);
+        }
+
+
+        public async Task<Appointment> UpdateAsync(Guid Id, UpdateAppointmentDTO appoinment)
+        {
+            var app = await _repository.GetByIdAsync(Id);
+            if (app is null)
+                throw new DomainValidationException("Appointment does not exist");
+
+            var patient = await _patientRepository.GetByIdAsync(appoinment.PatientId);
+            if (patient is null)
+                throw new DomainValidationException("Patient does not exist");
+
+            var doctor = await _doctorRepository.GetByIdAsync(appoinment.DoctorId);
+            if (doctor is null)
+                throw new DomainValidationException("Doctor does not exist");
+
+
+
+            if (appoinment.StartTime >= appoinment.EndTime)
+                throw new DomainValidationException("Start time must be before end time");
+
+            if (appoinment.StartTime < DateTime.UtcNow)
+                throw new DomainValidationException("Appointment cannot be scheduled in the past");
+
+            if (!string.IsNullOrWhiteSpace(appoinment.Notes) && appoinment.Notes.Length > 2000)
+                throw new DomainValidationException("Notes cannot exceed 2000 characters");
+
+            app.Status = appoinment.Status;
+            app.PatientId = appoinment.PatientId;
+            app.DoctorId = appoinment.DoctorId;
+            app.Type = appoinment.Type;
+            app.StartTime = appoinment.StartTime;
+            app.EndTime = appoinment.EndTime;
+            app.Notes = appoinment.Notes;
+            if (!Enum.IsDefined(typeof(AppointmentType), appoinment.Type))
+
+                throw new DomainValidationException("Invalid appointment type.");
+
+            if (!Enum.IsDefined(typeof(AppointmentStatus), appoinment.Status))
+
+                throw new DomainValidationException("Invalid appointment status.");
+
+
+            return await _repository.UpdateAsync(app);
+        }
+
+        public async Task<List<ReturnAppointmentDTO>> GetAllAsync()
+        {
+            var appointments = await _repository.GetAllAsync();
+
+            return appointments.Select(a => new ReturnAppointmentDTO
+            {
+                Id = a.Id,
+                Type = a.Type,
+                Status = a.Status,
+                StartTime = a.StartTime,
+                EndTime = a.EndTime,
+                Notes = a.Notes ?? string.Empty,
+
+                Doctor = new ReturnDoctorDTO
+                {
+                    Id = a.Doctor.Id,
+                    FirstName = a.Doctor.FirstName,
+                    LastName = a.Doctor.LastName,
+                    Specialization = a.Doctor.Specialization,
+                    Email = a.Doctor.Email ?? string.Empty,
+                    Phone = a.Doctor.Phone ?? string.Empty
+                },
+
+                Patient = new ReturnPatientDTO
+                {
+                    Id = a.Patient.Id,
+                    FirstName = a.Patient.FirstName,
+                    LastName = a.Patient.LastName,
+                    Email = a.Patient.Email,
+                    Phone = a.Patient.Phone,
+                    MedicalId = a.Patient.MedicalId
+                }
+            }).ToList();
+        }
+    }
+}
