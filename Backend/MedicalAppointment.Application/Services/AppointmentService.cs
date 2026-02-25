@@ -33,6 +33,13 @@ namespace MedicalAppointment.Application.Services
             var doctor = await _doctorRepository.GetByIdAsync(appoinment.DoctorId);
             if (doctor is null)
                 throw new DomainValidationException("Doctor does not exist");
+            if (!Enum.IsDefined(typeof(AppointmentType), appoinment.Type))
+
+                throw new DomainValidationException("Invalid appointment type.");
+
+            if (!Enum.IsDefined(typeof(AppointmentStatus), appoinment.Status))
+
+                throw new DomainValidationException("Invalid appointment status.");
             Appointment app = new Appointment(appoinment.PatientId, appoinment.DoctorId, appoinment.Type, appoinment.StartTime, appoinment.EndTime, appoinment.Notes);
             return  await _repository.AddAsync(app);
         }
@@ -68,6 +75,18 @@ namespace MedicalAppointment.Application.Services
             var doctor = await _doctorRepository.GetByIdAsync(appoinment.DoctorId);
             if (doctor is null)
                 throw new DomainValidationException("Doctor does not exist");
+
+            
+
+            if (appoinment.StartTime >= appoinment.EndTime)
+                throw new DomainValidationException("Start time must be before end time");
+
+            if (appoinment.StartTime < DateTime.UtcNow)
+                throw new DomainValidationException("Appointment cannot be scheduled in the past");
+
+            if (!string.IsNullOrWhiteSpace(appoinment.Notes) && appoinment.Notes.Length > 2000)
+                throw new DomainValidationException("Notes cannot exceed 2000 characters");
+
             app.Status = appoinment.Status;
             app.PatientId = appoinment.PatientId;
             app.DoctorId = appoinment.DoctorId;
@@ -75,8 +94,15 @@ namespace MedicalAppointment.Application.Services
             app.StartTime = appoinment.StartTime;
             app.EndTime = appoinment.EndTime;
             app.Notes = appoinment.Notes;
+            if (!Enum.IsDefined(typeof(AppointmentType), appoinment.Type))
 
-           
+                throw new DomainValidationException("Invalid appointment type.");
+
+            if (!Enum.IsDefined(typeof(AppointmentStatus), appoinment.Status))
+
+                throw new DomainValidationException("Invalid appointment status.");
+
+
             return await _repository.UpdateAsync(app);
         }
     }

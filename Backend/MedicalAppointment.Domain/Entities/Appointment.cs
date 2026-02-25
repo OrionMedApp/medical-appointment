@@ -10,6 +10,8 @@ namespace MedicalAppointment.Domain.Entities
 {
     public class Appointment
     {
+
+        public Appointment() { }
     
         public Appointment(
             Guid patientId,
