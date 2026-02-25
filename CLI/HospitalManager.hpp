@@ -15,6 +15,7 @@ class HospitalManager {
 public:
     void addSaveDoctor(Doctor& d);
     void addSavePatient(Patient& p);
+    bool fetchDoctorsFromBackend();
 private:
     std::vector<Doctor> doctors;
     const std::string doctors_file = "doctors.json";

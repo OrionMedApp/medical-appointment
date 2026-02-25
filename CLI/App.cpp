@@ -107,6 +107,7 @@ void App::stateMachine() {
             case STORE_ENTRIES:
             case TRACK_APPOINTMENTS:
             case SYNC_DOCTORS:
+                hospitalManager->fetchDoctorsFromBackend();
                 break;
             case EXIT:
                 isRunning = false;

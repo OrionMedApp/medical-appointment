@@ -15,4 +15,4 @@ add_executable(Project
         Patient.cpp
         Patient.hpp
 )
-target_link_libraries(Project ole32 uuid)
+target_link_libraries(Project winhttp ole32 uuid)
