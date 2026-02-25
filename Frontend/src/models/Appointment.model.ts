@@ -4,7 +4,9 @@ export interface Appointment{
      doctor: string,
      patient: string,
      type: string,
+     status:AppointmentStatus,
      start: Date,
+     notes:string,
      end: Date
 }
 export interface CreateAppointmentDto{

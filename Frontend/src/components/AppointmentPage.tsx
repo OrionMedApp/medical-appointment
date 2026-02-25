@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { events } from "../services/AppointmentMockService";
 import { formatDateTime } from "../utils/dateUtils";
 import CreateAppointmentModal from "./CreateAppointmentModal";
+import { AppointmentStatus } from "../models/Appointment.model";
 const AppointmentsPage = () => {
 
   const [appointments, setAppointments] = useState(events);
@@ -12,6 +13,17 @@ const AppointmentsPage = () => {
   const [selectedPatient, setSelectedPatient] = useState("");
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
+
+  const getStatusClass = (status: AppointmentStatus) => {
+  switch (status) {
+    case AppointmentStatus.Scheduled:
+      return "status-scheduled";
+    case AppointmentStatus.Completed:
+      return "status-completed";
+    case AppointmentStatus.Cancelled:
+      return "status-cancelled";
+  }
+};
 
   const filteredEvents = useMemo(() => {
     return appointments.filter((event) => {
@@ -88,6 +100,7 @@ const AppointmentsPage = () => {
               <th>Doktor</th>
               <th>Pacijent</th>
               <th>Tip</th>
+              <th>Status</th>
               <th>Početak</th>
               <th>Kraj</th>
             </tr>
@@ -95,7 +108,7 @@ const AppointmentsPage = () => {
           <tbody>
             {filteredEvents.length === 0 ? (
               <tr>
-                <td colSpan={5} style={{ textAlign: "center" }}>
+                <td colSpan={6} style={{ textAlign: "center" }}>
                   Nema termina
                 </td>
               </tr>
@@ -105,6 +118,9 @@ const AppointmentsPage = () => {
                   <td>{event.doctor}</td>
                   <td>{event.patient}</td>
                   <td>{event.type}</td>
+                  <td><span className={`status-badge ${getStatusClass(event.status)}`}>
+    {event.status}
+  </span></td>
                   <td>{formatDateTime(event.start)}</td>
                   <td>{formatDateTime(event.end)}</td>
                 </tr>

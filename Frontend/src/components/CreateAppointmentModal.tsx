@@ -12,7 +12,7 @@ const CreateAppointmentModal = ({ appointments, onClose, onCreate }: Props) => {
   const [patient, setPatient] = useState("");
   const [dateTime, setDateTime] = useState("");
   const [type, setType] = useState("");
-  const [status, setStatus] = useState("");
+  const [status, setStatus] = useState<AppointmentStatus>(AppointmentStatus.Scheduled);
   const [notes, setNotes] = useState("");
   const [error, setError] = useState("");
 
@@ -81,13 +81,14 @@ const CreateAppointmentModal = ({ appointments, onClose, onCreate }: Props) => {
 
           <select value={type} onChange={(e) => setType(e.target.value)}>
             <option value="">Tip</option>
-            <option value="Consultation">Consultation</option>
-            <option value="Follow-up">Follow-up</option>
-            <option value="Emergency">Emergency</option>
+            
+            <option value="Pregled">Pregled</option>
+          <option value="Kontrola">Kontrola</option>
+          <option value="Konsultacija">Konsultacija</option>
           </select>
 
-          <select value={status} onChange={(e) => setStatus(e.target.value)}>
-            <option value="">Status</option>
+          <select value={status} onChange={(e) => setStatus(e.target.value as AppointmentStatus)}>
+          
             <option value={AppointmentStatus.Scheduled}>Scheduled</option>
             <option value={AppointmentStatus.Completed}>Completed</option>
             <option value={AppointmentStatus.Cancelled}>Cancelled</option>
