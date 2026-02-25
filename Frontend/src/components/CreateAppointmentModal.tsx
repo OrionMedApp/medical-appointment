@@ -57,11 +57,11 @@ const CreateAppointmentModal = ({ appointments, onClose, onCreate }: Props) => {
   return (
     <div className="modal-overlay">
       <div className="modal">
-        <h3>Kreiranje termina</h3>
+        <h3>Create Appointment</h3>
 
         <form onSubmit={handleSubmit} className="modal-form">
           <select value={doctor} onChange={(e) => setDoctor(e.target.value)}>
-            <option value="">Doktor</option>
+            <option value="">Doctor</option>
             <option value="Dr Marković">Dr Marković</option>
             <option value="Dr Jovanović">Dr Jovanović</option>
           </select>
@@ -80,7 +80,7 @@ const CreateAppointmentModal = ({ appointments, onClose, onCreate }: Props) => {
           />
 
           <select value={type} onChange={(e) => setType(e.target.value)}>
-            <option value="">Tip</option>
+            <option value="">Type</option>
             
             <option value="Pregled">Pregled</option>
           <option value="Kontrola">Kontrola</option>
