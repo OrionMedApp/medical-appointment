@@ -5,12 +5,18 @@ using MedicalAppointment.Domain.IRepositories;
 using MedicalAppointment.Infrastructure.Data;
 using MedicalAppointment.Infrastructure.ExportCSV;
 using MedicalAppointment.Infrastructure.Repositories;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+
+builder.Services.Configure<ApiBehaviorOptions>(options =>
+{
+    options.SuppressModelStateInvalidFilter = true;
+});
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(
