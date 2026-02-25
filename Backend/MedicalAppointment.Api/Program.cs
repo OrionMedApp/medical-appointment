@@ -1,7 +1,9 @@
+using MedicalAppointment.Application.ExportCSV;
 using MedicalAppointment.Application.IServices;
 using MedicalAppointment.Application.Services;
 using MedicalAppointment.Domain.IRepositories;
 using MedicalAppointment.Infrastructure.Data;
+using MedicalAppointment.Infrastructure.ExportCSV;
 using MedicalAppointment.Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Serialization;
@@ -33,7 +35,7 @@ builder.Services.AddScoped<IAppointmentService, AppointmentService>();
 
 builder.Services.AddScoped<IDoctorRepository, DoctorRepository>();
 builder.Services.AddScoped<IDoctorService, DoctorService>();
-
+builder.Services.AddScoped<ICsvExporter, CsvExporter>();
 
 var app = builder.Build();
 

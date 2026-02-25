@@ -90,6 +90,12 @@ namespace MedicalAppointment.Api.Controllers
                 return StatusCode(500, "Database error while updating patient");
             }
         }
+        [HttpGet("export")]
+        public async Task<IActionResult> ExportPatientsCsv()
+        {
+            var csvBytes = await _service.GetAllPatientsCsvAsync();
+            return File(csvBytes, "text/csv", "patients.csv");
+        }
 
 
 
