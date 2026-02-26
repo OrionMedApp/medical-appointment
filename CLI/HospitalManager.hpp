@@ -16,7 +16,12 @@ public:
     void addSaveDoctor(Doctor& d);
     void addSavePatient(Patient& p);
 
-    bool fetchFileFromBackend(const std::wstring& appName, const std::wstring& host, const int& port, const std::wstring& path, std::string fileName);
+    std::string getResponseFromBackend(const std::wstring& appName, const std::wstring& host, const int& port, const std::wstring& path, DWORD& statusCode);
+
+    void trackAppointments();
+
+    void exportResponseToAFile(std::string& response, std::string file_name);
+
 private:
     std::vector<Doctor> doctors;
     const std::string doctors_file = "doctors.json";
