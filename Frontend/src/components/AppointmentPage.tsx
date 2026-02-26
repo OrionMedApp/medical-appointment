@@ -1,10 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 import { formatDateTime } from "../utils/dateUtils";
 import CreateAppointmentModal from "./CreateAppointmentModal";
-import type { Appointment } from "../models/Appointment.model";
+import { Appointment, AppointmentType } from "../models/Appointment.model";
 import { AppointmentStatus } from "../models/Appointment.model";
 
-// ===== DTO shape koji stvarno dobijaš iz GET /api/Appointment =====
 type PersonDto = {
   id: string;
   firstName: string;
@@ -14,26 +13,25 @@ type PersonDto = {
 
 type AppointmentApiDto = {
   id: string;
-  type: number;       // 0/1/2
-  status: number;     // 0/1/2
-  startTime: string;  // ISO string
-  endTime: string;    // ISO string
+  type: AppointmentType;
+  status: AppointmentStatus;
+  startTime: string;
+  endTime: string;
   notes: string;
   doctor: PersonDto;
   patient: PersonDto;
 };
 
-// ===== Helpers =====
-const typeLabel = (t: number) => {
+const typeLabel = (t: AppointmentType) => {
   switch (t) {
-    case 0:
-      return "Konsultacija";
-    case 1:
-      return "Kontrola";
-    case 2:
-      return "Hitno";
+    case AppointmentType.Consulatation:
+      return "Consultation";
+    case AppointmentType.FollowUp:
+      return "Follow up";
+    case AppointmentType.Emergency:
+      return "Emergency";
     default:
-      return "Nepoznato";
+      return "Unknown";
   }
 };
 
@@ -89,7 +87,7 @@ const AppointmentsPage = () => {
 };
 
 const handleDelete = async (id: string) => {
-  if (!window.confirm("Da li ste sigurni da želite da obrišete termin?")) return;
+  if (!window.confirm("Are you sure you want to delete appointment?")) return;
 
   try {
     const res = await fetch(`/api/Appointment/${id}`, {
@@ -100,7 +98,7 @@ const handleDelete = async (id: string) => {
 
     setAppointments((prev) => prev.filter((a) => a.id !== id));
   } catch (e) {
-    alert("Greška pri brisanju termina");
+    alert("Error while deleting appointment.");
   }
 };
 
@@ -114,13 +112,12 @@ const handleDelete = async (id: string) => {
         if (!res.ok) throw new Error(`Appointments error: ${res.status}`);
 
         const aDto = (await res.json()) as AppointmentApiDto[];
-
         const mapped: Appointment[] = (aDto ?? []).map((a) => ({
           id: a.id, // GUID string
           doctor: getFullName(a.doctor),
           patient: getFullName(a.patient),
-          type: typeLabel(a.type),
-          status: statusLabel(a.status),
+          type: a.type,
+          status: a.status,
           start: new Date(a.startTime),
           end: new Date(a.endTime),
           notes: a.notes ?? "",
@@ -138,7 +135,6 @@ const handleDelete = async (id: string) => {
     load();
   }, []);
 
-  // Dinamičke opcije za filtere
   const doctorOptions = useMemo(
     () => Array.from(new Set(appointments.map((a) => a.doctor))).sort(),
     [appointments]
@@ -149,7 +145,7 @@ const handleDelete = async (id: string) => {
     [appointments]
   );
 
-  const typeOptions = useMemo(() => ["Konsultacija", "Kontrola", "Hitno"], []);
+const typeOptions = useMemo(() => [AppointmentType.Consulatation, AppointmentType.FollowUp, AppointmentType.Emergency],[]);
 
   const filteredEvents = useMemo(() => {
     return appointments.filter((event) => {
