@@ -20,15 +20,19 @@ namespace MedicalAppointment.Application.Services
         private readonly IPatientRepository _patientRepository;
         private readonly IDoctorRepository _doctorRepository;
         private readonly ICsvExporter _csvExporter;
+        private readonly IAvailabilityService _availabilityService;
+
         public AppointmentService(IAppointmentRepository repository,
             IPatientRepository patientRepository,
             IDoctorRepository doctorRepository,
-            ICsvExporter csvExporter)
+            ICsvExporter csvExporter,
+            IAvailabilityService availabilityService)
         {
             _repository = repository;
             _patientRepository = patientRepository;
             _doctorRepository = doctorRepository;
             _csvExporter = csvExporter;
+            _availabilityService = availabilityService;
         }
         public async Task<Appointment> CreateAsync(CreateAppointmentDTO appoinment)
         {
@@ -47,6 +51,12 @@ namespace MedicalAppointment.Application.Services
 
                 throw new DomainValidationException("Invalid appointment status.");
             Appointment app = new Appointment(appoinment.PatientId, appoinment.DoctorId, appoinment.Type, appoinment.StartTime, appoinment.EndTime, appoinment.Notes);
+
+            await _availabilityService.BookSlots(
+                    appoinment.DoctorId,
+                    appoinment.StartTime,
+                    appoinment.EndTime
+                );
             return await _repository.AddAsync(app);
         }
 
@@ -57,6 +67,11 @@ namespace MedicalAppointment.Application.Services
             if (appointment == null)
                 return false;
 
+            await _availabilityService.ReleaseSlots(
+                appointment.DoctorId,
+                appointment.StartTime,
+                appointment.EndTime
+            );
             await _repository.DeleteAsync(id);
 
             return true;
@@ -83,6 +98,11 @@ namespace MedicalAppointment.Application.Services
                 throw new DomainValidationException("Doctor does not exist");
 
 
+            if (!Enum.IsDefined(typeof(AppointmentType), appoinment.Type))
+                throw new DomainValidationException("Invalid appointment type.");
+
+            if (!Enum.IsDefined(typeof(AppointmentStatus), appoinment.Status))
+                throw new DomainValidationException("Invalid appointment status.");
 
             if (appoinment.StartTime >= appoinment.EndTime)
                 throw new DomainValidationException("Start time must be before end time");
@@ -93,6 +113,18 @@ namespace MedicalAppointment.Application.Services
             if (!string.IsNullOrWhiteSpace(appoinment.Notes) && appoinment.Notes.Length > 2000)
                 throw new DomainValidationException("Notes cannot exceed 2000 characters");
 
+            var oldDoctorId = app.DoctorId;
+            var oldStart = app.StartTime;
+            var oldEnd = app.EndTime;
+
+            var changedSlot = oldDoctorId != appoinment.DoctorId || oldStart != appoinment.StartTime || oldEnd != appoinment.EndTime;
+
+            if (changedSlot ||(app.Status==AppointmentStatus.Canceled && appoinment.Status==AppointmentStatus.Scheduled))
+            {
+                await _availabilityService.ReleaseSlots(oldDoctorId, oldStart, oldEnd);
+                await _availabilityService.BookSlots(appoinment.DoctorId, appoinment.StartTime, appoinment.EndTime);
+            }
+
             app.Status = appoinment.Status;
             app.PatientId = appoinment.PatientId;
             app.DoctorId = appoinment.DoctorId;
@@ -100,6 +132,11 @@ namespace MedicalAppointment.Application.Services
             app.StartTime = appoinment.StartTime;
             app.EndTime = appoinment.EndTime;
             app.Notes = appoinment.Notes;
+            if (oldDoctorId==app.DoctorId && app.Status == AppointmentStatus.Canceled)
+            {
+                await _availabilityService.ReleaseSlots(oldDoctorId, app.StartTime, app.EndTime);
+
+            }
             if (!Enum.IsDefined(typeof(AppointmentType), appoinment.Type))
 
                 throw new DomainValidationException("Invalid appointment type.");

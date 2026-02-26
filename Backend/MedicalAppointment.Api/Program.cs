@@ -55,6 +55,7 @@ builder.Services.AddScoped<ICsvExporter, CsvExporter>();
 builder.Services.Configure<OpenAiOptions>(builder.Configuration.GetSection("OpenAI"));
 builder.Services.AddHttpClient<OpenAiClient>();
 
+builder.Services.AddScoped<IAvailabilityService, AvailabilityService>();
 
 builder.Services.AddScoped<IAvailabilitySlotRepository, AvailabilitySlotRepository>();
 
