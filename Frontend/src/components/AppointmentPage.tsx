@@ -161,6 +161,53 @@ const AppointmentsPage = () => {
         />
       )}
 
+      <div className="print-only">
+  <h1 className="print-title">Appointment Schedule</h1>
+
+  <table className="print-table">
+  <thead>
+    <tr>
+      <th>Status</th>
+      <th>Patient</th>
+      <th>Doctor</th>
+      <th>Type</th>
+      <th>Start</th>
+      <th>End</th>
+      
+    </tr>
+  </thead>
+  <tbody>
+    {filteredAppointments
+      .sort((a, b) =>
+        new Date(a.start).getTime() - new Date(b.start).getTime()
+      )
+      .map((a) => (
+        <tr key={a.id}>
+          <td>{a.status}</td>
+          <td>{a.patient}</td>
+          <td>{a.doctor}</td>
+          <td>{a.type}</td>
+          <td>
+            {a.start.toLocaleDateString()}{" "}
+            {a.start.toLocaleTimeString([], {
+              hour: "2-digit",
+              minute: "2-digit",
+            })}
+          </td>
+          <td>
+            {a.end.toLocaleDateString()}{" "}
+            {a.end.toLocaleTimeString([], {
+              hour: "2-digit",
+              minute: "2-digit",
+            })}
+          </td>
+          
+        </tr>
+      ))}
+  </tbody>
+</table>
+</div>
+
       {isModalOpen && !editingAppointment && (
   <CreateAppointmentModal
     appointments={appointments}
