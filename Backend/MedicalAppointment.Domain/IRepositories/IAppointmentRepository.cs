@@ -28,6 +28,13 @@ namespace MedicalAppointment.Domain.IRepositories
         string? notesContains,
         string? sortBy,
         bool sortDesc
-    );
+        );
+
+        Task<bool> HasOverlapAsync(
+            Guid doctorId,
+            Guid patientId,
+            DateTime startTime,
+            DateTime endTime,
+            Guid? excludeAppointmentId = null);
     }
 }
