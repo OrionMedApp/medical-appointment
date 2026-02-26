@@ -14,6 +14,6 @@ namespace MedicalAppointment.Domain.IRepositories
         Task<List<Patient>> GetAllAsync();
         Task DeleteAsync(Patient patient);
         Task UpdateAsync(Patient patient);
-
+        Task<List<Patient>> GetByMedicalIdsAsync(IEnumerable<Guid> medicalIds);
     }
 }
