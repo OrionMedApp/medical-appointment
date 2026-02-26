@@ -58,15 +58,15 @@ namespace MedicalAppointment.Infrastructure.Repositories
                 .ToListAsync();
         }
         public async Task<List<Appointment>> GetAllFilteredAsync(
-    Guid? doctorId,
-    Guid? patientId,
-    AppointmentType? type,
-    AppointmentStatus? status,
-    DateTime? startFrom,
-    DateTime? startTo,
-    string? notesContains,
-    string? sortBy,
-    bool sortDesc)
+                Guid? doctorId,
+                Guid? patientId,
+                AppointmentType? type,
+                AppointmentStatus? status,
+                DateTime? startFrom,
+                DateTime? startTo,
+                string? notesContains,
+                string? sortBy,
+                bool sortDesc)
         {
             // UZMI SVE preko postojeće metode (sa Include-ovima)
             var list = await GetAllAsync();

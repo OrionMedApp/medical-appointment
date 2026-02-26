@@ -10,6 +10,7 @@ namespace MedicalAppointment.Domain.IRepositories
     public interface IAvailabilitySlotRepository
     {
         Task<List<AvailablilitySlot>> GetByDoctorAndDateAsync(Guid? doctorId, DateTime? date);
-    
+        Task<List<AvailablilitySlot>> GetSlotsInRangeAsync(Guid doctorId, DateTime start, DateTime end);
+        Task SaveChangesAsync();
     }
 }

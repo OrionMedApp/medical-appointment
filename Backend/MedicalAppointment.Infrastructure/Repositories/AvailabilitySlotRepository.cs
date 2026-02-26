@@ -1,4 +1,5 @@
 ﻿using MedicalAppointment.Domain.Entities;
+using MedicalAppointment.Domain.Exceptions;
 using MedicalAppointment.Domain.IRepositories;
 using MedicalAppointment.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
@@ -39,6 +40,30 @@ namespace MedicalAppointment.Infrastructure.Repositories
             }
 
             return await query.ToListAsync();
+        }
+
+        public async Task<List<AvailablilitySlot>> GetSlotsInRangeAsync(
+        Guid doctorId,
+        DateTime start,
+        DateTime end)
+        {
+            var slots= await _context.AvailabilitySlots
+                .Where(x =>
+                    x.DoctorId == doctorId &&
+                    x.StartTime >= start &&
+                    x.EndTime <= end)
+                .ToListAsync();
+            if (slots == null)
+            {
+                throw new DomainValidationException("Slot does not exist");
+
+            }
+            return slots;
+        }
+
+        public async Task SaveChangesAsync()
+        {
+            await _context.SaveChangesAsync();
         }
     }
 }
