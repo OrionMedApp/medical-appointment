@@ -23,18 +23,20 @@ namespace MedicalAppointment.Application.Services
         private readonly IDoctorRepository _doctorRepository;
         private readonly ICsvExporter _csvExporter;
         private readonly IAvailabilityService _availabilityService;
-
+        private readonly IAvailabilitySlotRepository _slotRepository;
         public AppointmentService(IAppointmentRepository repository,
             IPatientRepository patientRepository,
             IDoctorRepository doctorRepository,
             ICsvExporter csvExporter,
-            IAvailabilityService availabilityService)
+            IAvailabilityService availabilityService,
+            IAvailabilitySlotRepository slotRepository)
         {
             _repository = repository;
             _patientRepository = patientRepository;
             _doctorRepository = doctorRepository;
             _csvExporter = csvExporter;
             _availabilityService = availabilityService;
+            _slotRepository = slotRepository;
         }
         public async Task<Appointment> CreateAsync(CreateAppointmentDTO appoinment)
         {
@@ -62,6 +64,55 @@ namespace MedicalAppointment.Application.Services
             return await _repository.AddAsync(app);
         }
 
+
+        public async Task<(Doctor doctor, DateTime start, DateTime end)> ScheduleFromIntentAsync(
+                Patient patient,
+                Specialization specialization,
+                AppointmentType type
+                )
+        {
+            var doctors = await _doctorRepository.GetAllAsync();
+            var filtered = doctors
+                .Where(d => d.Specialization == specialization)
+                .ToList();
+
+            if (!filtered.Any())
+                throw new InvalidOperationException("No doctors for that specialization.");
+
+            int slotDuration = type == AppointmentType.Emergency ? 30 : 30;
+            var now = DateTime.UtcNow;
+            int daysAhead = 7;
+
+            foreach (var doctor in filtered)
+            {
+                for (int day = 0; day < daysAhead; day++)
+                {
+                    var date = now.Date.AddDays(day);
+                    var slots = await _slotRepository.GetByDoctorAndDateAsync(doctor.Id, date);
+
+                    var freeSlots = slots
+                        .Where(s => !s.IsBooked && s.StartTime >= now)
+                        .OrderBy(s => s.StartTime)
+                        .ToList();
+
+                    foreach (var slot in freeSlots)
+                    {
+                        var start = slot.StartTime;
+                        var end = start.AddMinutes(slotDuration);
+
+                        var overlap = await _repository
+                            .HasOverlapAsync(doctor.Id, patient.Id, start, end);
+
+                        if (!overlap)
+                        {
+                            return (doctor, start, end);
+                        }
+                    }
+                }
+            }
+
+            throw new InvalidOperationException("No available slot found.");
+        }
         public async Task<bool> DeleteAsync(Guid id)
         {
             var appointment = await _repository.GetByIdAsync(id);
@@ -389,6 +440,8 @@ namespace MedicalAppointment.Application.Services
 
             return null; 
         }
+
+
     }
 }
 

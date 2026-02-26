@@ -127,5 +127,33 @@ namespace MedicalAppointment.Infrastructure.Repositories
 
             return list;
         }
+
+
+        public async Task<bool> HasOverlapAsync(
+    Guid doctorId,
+    Guid patientId,
+    DateTime startTime,
+    DateTime endTime,
+    Guid? excludeAppointmentId = null)
+        {
+            return await _context.Appointments.AnyAsync(a =>
+                (excludeAppointmentId == null || a.Id != excludeAppointmentId.Value)
+                && a.Status != AppointmentStatus.Canceled
+                && (
+                    // Doctor conflict
+                    (a.DoctorId == doctorId &&
+                     startTime < a.EndTime &&
+                     endTime > a.StartTime)
+
+                    ||
+
+                    // Patient conflict
+                    (a.PatientId == patientId &&
+                     startTime < a.EndTime &&
+                     endTime > a.StartTime)
+                )
+            );
+        }
+
     }
 }

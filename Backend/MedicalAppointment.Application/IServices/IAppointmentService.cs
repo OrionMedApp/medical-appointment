@@ -21,7 +21,10 @@ namespace MedicalAppointment.Application.IServices
         Task<List<ReturnAppointmentDTO>> GetAllAsync();
         Task<byte[]> GetAllAppointmentsCsvAsync();
 
-
+        Task<(Doctor doctor, DateTime start, DateTime end)> ScheduleFromIntentAsync(
+            Patient patient,
+            Specialization specialization,
+            AppointmentType type);
         Task<List<ReturnAppointmentDTO>> GetAllFilteredAsync(
        Guid? doctorId,
        Guid? patientId,
