@@ -1,4 +1,5 @@
 import { AppointmentType } from "../models/Appointment.model";
+import "../style/Filters.css";
 
 type AppointmentFiltersProps = {
   doctorOptions: string[];

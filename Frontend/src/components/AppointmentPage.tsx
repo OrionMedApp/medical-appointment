@@ -7,6 +7,7 @@ import AppointmentFilters from "./AppointmentFilters";
 import AppointmentCalendar from "./AppointmentCalendar";
 import Sidebar from "./Sidebar";
 import UpdateAppointmentModal from "./UpdateAppointmentModal";
+import AppFooter from "./AppFooter";
 
 type PersonDto = {
   id: string;
@@ -120,7 +121,7 @@ const AppointmentsPage = () => {
   }, [appointments, selectedDoctor, selectedType, selectedPatient, dateFrom, dateTo]);
 
   return (
-    <div style={{ padding: "20px" }}>
+<div style={{ padding: "20px", minHeight: "100vh", display: "flex", flexDirection: "column" }}>
       <Sidebar
         isOpen={isSidebarOpen}
         onClose={() => setIsSidebarOpen(false)}
@@ -162,8 +163,15 @@ const AppointmentsPage = () => {
       )}
 
       <div className="print-only">
-  <h1 className="print-title">Appointment Schedule</h1>
-
+  <div style={{ display: "flex", alignItems: "center", gap: "92px" }}>
+    <h1 className="print-title">Appointment Schedule</h1>
+    <img
+      src="/image.png"
+      alt="Company logo"
+      style={{ height: "32px", width: "auto" }}
+      onError={(e) => console.log("Logo se nije učitao")}
+    />
+  </div>
   <table className="print-table">
   <thead>
     <tr>
@@ -229,6 +237,8 @@ const AppointmentsPage = () => {
     }
   />
 )}
+
+<AppFooter />
 
     </div>
   );

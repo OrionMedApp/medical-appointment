@@ -1,5 +1,8 @@
 import { useState } from "react";
 import { Appointment, AppointmentStatus } from "../models/Appointment.model";
+import "../style/Calendar.css";
+import "../style/Badges.css";
+import "../style/Buttons.css";
 
 type Props = {
   appointments: Appointment[];
@@ -173,12 +176,12 @@ const handleAppointmentClick = (e: React.MouseEvent, appt: Appointment) => {
         })}
       </div>
 
-      {popup && (
-        <div
-          className="cal-popup"
-          style={{ top: popup.y, left: Math.min(popup.x, window.innerWidth - 280) }}
-          onClick={(e) => e.stopPropagation()}
-        >
+     {popup && (
+      <div
+        className={`cal-popup ${getStatusClass(popup.appointment.status)}`}
+        style={{ top: popup.y, left: popup.x }}
+        onClick={(e) => e.stopPropagation()}
+      >
           <div className="cal-popup-header">
             <span className={`status-badge ${getStatusClass(popup.appointment.status)}`}>
               {popup.appointment.status}
