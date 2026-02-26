@@ -6,6 +6,7 @@ import AppointmentHeader from "./AppointmentHeader";
 import AppointmentFilters from "./AppointmentFilters";
 import AppointmentCalendar from "./AppointmentCalendar";
 import Sidebar from "./Sidebar";
+import UpdateAppointmentModal from "./UpdateAppointmentModal";
 
 type PersonDto = {
   id: string;
@@ -160,14 +161,28 @@ const AppointmentsPage = () => {
         />
       )}
 
-      {isModalOpen && (
-        <CreateAppointmentModal
-          appointments={appointments}
-        //  editingAppointment={editingAppointment}
-          onClose={() => { setIsModalOpen(false); setEditingAppointment(null); }}
-          onCreate={(newAppointment) => setAppointments((prev) => [...prev, newAppointment])}
-        />
-      )}
+      {isModalOpen && !editingAppointment && (
+  <CreateAppointmentModal
+    appointments={appointments}
+    onClose={() => setIsModalOpen(false)}
+    onCreate={(newAppointment) => setAppointments((prev) => [...prev, newAppointment])}
+  />
+)}
+
+{isModalOpen && editingAppointment && (
+  <UpdateAppointmentModal
+    appointments={appointments}
+    appointmentToEdit={editingAppointment}
+    onClose={() => {
+      setIsModalOpen(false);
+      setEditingAppointment(null);
+    }}
+    onUpdated={(updated) =>
+      setAppointments((prev) => prev.map((a) => (a.id === updated.id ? updated : a)))
+    }
+  />
+)}
+
     </div>
   );
 };
