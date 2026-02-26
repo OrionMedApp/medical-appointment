@@ -106,9 +106,19 @@ void App::stateMachine() {
                 break;
             case STORE_ENTRIES:
             case TRACK_APPOINTMENTS:
-            case SYNC_DOCTORS:
-                hospitalManager->fetchFileFromBackend(L"CLI-DoctorApp",L"localhost", 5085, L"/api/Doctor/export", "doctors");
+                hospitalManager->trackAppointments();
+                FlushConsoleInputBuffer(GetStdHandle(STD_INPUT_HANDLE));
                 break;
+            case SYNC_DOCTORS: {
+                DWORD statusCode = 0;
+                std::string response = hospitalManager->getResponseFromBackend(L"CLI-DoctorApp",L"localhost", 5085, L"/api/Doctor/export", statusCode);
+                if (statusCode == 200) {
+                    hospitalManager->exportResponseToAFile(response, "doctors");
+                }else {
+                    cout << "Error occured!" << endl << endl;
+                }
+                break;
+            }
             case EXIT:
                 isRunning = false;
                 return;
