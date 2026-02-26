@@ -131,10 +131,14 @@ const AppointmentsPage = () => {
   onEmergencyClick={() => setOpenEmergency(true)}
 />
       <Emergency open={openEmergency} onClose={() => setOpenEmergency(false)} />
+       
+
       <AppointmentHeader
         isSidebarOpen={isSidebarOpen}
         onToggleSidebar={() => setIsSidebarOpen((prev) => !prev)}
-      />
+        title="APPOINTMENTS"
+        subtitle="Overview & scheduling"
+        />
 
       <AppointmentFilters
         doctorOptions={doctorOptions}
