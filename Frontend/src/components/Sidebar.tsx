@@ -32,7 +32,7 @@ const Sidebar = ({
 
   const links: SidebarLink[] = [
     { label: "Appointments", path: "/appointments", icon: "🗓️" },
-    { label: "Patients", path: "/patients", icon: "🧑‍⚕️" },
+    { label: "Patients", path: "/patients", icon: "👤" },
     { label: "Doctors", path: "/doctors", icon: "👨‍⚕️" },
     {
       label: "Emergency",
