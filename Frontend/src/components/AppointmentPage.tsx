@@ -1,3 +1,4 @@
+
 import { useEffect, useMemo, useState } from "react";
 import { Appointment, AppointmentType } from "../models/Appointment.model";
 import { AppointmentStatus } from "../models/Appointment.model";
@@ -8,6 +9,7 @@ import AppointmentCalendar from "./AppointmentCalendar";
 import Sidebar from "./Sidebar";
 import UpdateAppointmentModal from "./UpdateAppointmentModal";
 import AppFooter from "./AppFooter";
+import Emergency from "./Emergency";
 
 type PersonDto = {
   id: string;
@@ -44,7 +46,7 @@ const AppointmentsPage = () => {
   const [selectedPatient, setSelectedPatient] = useState("");
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
-
+  const [openEmergency, setOpenEmergency] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   useEffect(() => {
@@ -123,11 +125,12 @@ const AppointmentsPage = () => {
   return (
 <div style={{ padding: "20px", minHeight: "100vh", display: "flex", flexDirection: "column" }}>
       <Sidebar
-        isOpen={isSidebarOpen}
-        onClose={() => setIsSidebarOpen(false)}
-        activePath="/appointments"
-      />
-
+  isOpen={isSidebarOpen}
+  onClose={() => setIsSidebarOpen(false)}
+  activePath={location.pathname}
+  onEmergencyClick={() => setOpenEmergency(true)}
+/>
+      <Emergency open={openEmergency} onClose={() => setOpenEmergency(false)} />
       <AppointmentHeader
         isSidebarOpen={isSidebarOpen}
         onToggleSidebar={() => setIsSidebarOpen((prev) => !prev)}
