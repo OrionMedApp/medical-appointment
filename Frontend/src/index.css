@@ -997,3 +997,64 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover {
     justify-content: center;
   }
 }
+
+/* Po defaultu tabela je sakrivena */
+.print-only {
+  display: none;
+}
+
+@media print {
+
+  /* Sakrij sve */
+  body * {
+    visibility: hidden;
+  }
+
+  /* Prikaži samo tabelu */
+  .print-only,
+  .print-only * {
+    visibility: visible;
+  }
+
+  .print-only {
+    display: block;
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    padding: 40px;
+    font-family: Arial, sans-serif;
+    background: white;
+    color: black;
+  }
+
+  .print-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed; 
+  font-size: 14px;
+}
+
+  .print-table th {
+    text-align: left;
+    padding: 12px;
+    border-bottom: 2px solid black;
+  }
+
+  .print-table td {
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+  }
+ .print-table td:nth-child(2),
+.print-table td:nth-child(3) {
+  white-space: nowrap;
+}
+
+  .print-table tr:nth-child(even) {
+    background: #f5f5f5;
+  }
+
+  @page {
+    margin: 20mm;
+  }
+}
