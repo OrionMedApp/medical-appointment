@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace MedicalAppointment.Infrastructure.ExportCSV
@@ -40,10 +41,10 @@ namespace MedicalAppointment.Infrastructure.ExportCSV
                     $"{a.EndTime:O}," +
                     $"{Escape(a.Notes)}"
                 );
-                    }
+            }
 
-    return Encoding.UTF8.GetBytes(sb.ToString());
-}
+            return Encoding.UTF8.GetBytes(sb.ToString());
+        }
 
         public byte[] ExportDoctors(List<ReturnDoctorDTO> doctors)
         {
@@ -79,6 +80,22 @@ namespace MedicalAppointment.Infrastructure.ExportCSV
             if (string.IsNullOrWhiteSpace(value))
                 return "";
 
+            // 1) Zameni sve kontrolne karaktere razmakom (ovo hvata \r \n \v \f i ostalo)
+            var chars = value.ToCharArray();
+            for (int i = 0; i < chars.Length; i++)
+            {
+                if (char.IsControl(chars[i]))
+                    chars[i] = ' ';
+            }
+            value = new string(chars);
+
+            // 2) Sabij višestruke razmake
+            while (value.Contains("  "))
+                value = value.Replace("  ", " ");
+
+            value = value.Trim();
+
+            // 3) CSV escape
             if (value.Contains(",") || value.Contains("\""))
             {
                 value = value.Replace("\"", "\"\"");
@@ -88,5 +105,4 @@ namespace MedicalAppointment.Infrastructure.ExportCSV
             return value;
         }
     }
-
 }
