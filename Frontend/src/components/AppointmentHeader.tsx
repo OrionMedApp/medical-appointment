@@ -1,4 +1,5 @@
 import BurgerMenu from "./BurgerMenu";
+import "../style/Header.css";
 
 type AppointmentHeaderProps = {
   isSidebarOpen: boolean;

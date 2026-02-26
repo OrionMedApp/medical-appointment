@@ -21,7 +21,7 @@ export interface CreateAppointmentDto {
 export enum AppointmentStatus {
   Scheduled = "Scheduled",
   Completed = "Completed",
-  Cancelled = "Cancelled",
+  Cancelled = "Canceled",
 }
 
 export enum AppointmentType {

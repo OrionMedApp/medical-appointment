@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import "../style/Sidebar.css";
 
 type SidebarLink = {
   label: string;
