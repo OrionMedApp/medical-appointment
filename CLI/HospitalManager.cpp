@@ -20,6 +20,7 @@
 
 
 #include "HttpClient.hpp"
+#include "Validator.hpp"
 
 #pragma comment(lib, "winhttp.lib")
 
@@ -68,22 +69,7 @@ void HospitalManager::addSavePatient(Patient &p) {
     outFile.close();
 }
 
-void HospitalManager::exportResponseToAFile(std::string &response, std::string file_name) {
-    std::cout << "CSV fetched - " << response.length() << " bytes!" << std::endl;
-
-    // CSV filename: YYYYMMDD_HHMMSS_doctors.csv
-    auto now = std::chrono::system_clock::now();
-    auto time_t = std::chrono::system_clock::to_time_t(now);
-    std::stringstream ss;
-    ss << std::put_time(std::localtime(&time_t), "%Y%m%d_%H%M%S") << "_" << file_name << ".csv";
-    std::string timestamp_file = ss.str();
-
-    std::ofstream outFile(timestamp_file, std::ios::binary);
-    outFile << response;
-    outFile.close();
-    std::cout << "File saved" << std::endl << std::endl;
-}
-void HospitalManager::addSaveAppointment(Appointment& a) {
+void HospitalManager::addSaveAppointment(Appointment &a) {
     std::ifstream inFile(appointments_file);
     json appointments;
     if (inFile.good()) {
@@ -100,6 +86,22 @@ void HospitalManager::addSaveAppointment(Appointment& a) {
     outFile.close();
 }
 
+void HospitalManager::exportResponseToAFile(std::string &response, std::string file_name) {
+    std::cout << "CSV fetched - " << response.length() << " bytes!" << std::endl;
+
+    // CSV filename: YYYYMMDD_HHMMSS_doctors.csv
+    auto now = std::chrono::system_clock::now();
+    auto time_t = std::chrono::system_clock::to_time_t(now);
+    std::stringstream ss;
+    ss << std::put_time(std::localtime(&time_t), "%Y%m%d_%H%M%S") << "_" << file_name << ".csv";
+    std::string timestamp_file = ss.str();
+
+    std::ofstream outFile(timestamp_file, std::ios::binary);
+    outFile << response;
+    outFile.close();
+    std::cout << "File saved" << std::endl << std::endl;
+}
+
 std::string HospitalManager::getResponseFromBackend(const std::wstring &appName, const std::wstring &host,
                                                     const int &port, const std::wstring &path, DWORD &statusCode) {
     auto &client = HttpClient::getInstance();
@@ -112,69 +114,107 @@ std::string HospitalManager::getResponseFromBackend(const std::wstring &appName,
     return response;
 }
 
-bool HospitalManager::getDoctorFromBackend(const std::string& email, const std::string& medicalID) {
+bool HospitalManager::getDoctorFromBackend() {
     DWORD statusCode = 0;
-    std::wstring pathDoctor = L"/api/Doctor/export";
+    std::wstring pid, did, sdate, edate, status, type, notes;
+    bool valid = false;
 
-    std::wstring pathPatient = L"/api/Patient/export";
+    while (!valid) {
+        std::wcout << L"Please enter a valid Doctor GUID (XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX): ";
+        std::getline(std::wcin >> std::ws, did);
 
-    std::string responseDoctor = getResponseFromBackend(L"CLI-DoctorApp", L"localhost", 5085, pathDoctor, statusCode);
-    if (statusCode != 200)return false;
-    std::string responsePatient = getResponseFromBackend(L"CLI-DoctorApp", L"localhost", 5085, pathPatient, statusCode);
-    if (statusCode != 200)return false;
-
-    std::cout << responseDoctor << std::endl;
-    std::cout << responsePatient << std::endl;
-
-    {
-        std::stringstream ss(responsePatient);
-        std::string line;
-        std::getline(ss, line); // header: Id,FirstName,LastName,Email,Phone,MedicalId
-
-        while (std::getline(ss, line)) {
-            std::stringstream ls(line);
-            std::string id, first, last, pat_email, phone, medId;
-            std::getline(ls, id, ',');
-            std::getline(ls, first, ',');
-            std::getline(ls, last, ',');
-            std::getline(ls, pat_email, ',');
-            std::getline(ls, phone, ',');
-            std::getline(ls, medId, ',');
-
-            medId = trim(medId);  // ← helper funkcija
-
-
-            if (medicalID != medId) {
-                std::cout << "Patient not exist" << std::endl;
-                return false;
-            }
+        if (Validator::isValidGuid(did)) {
+            valid = true;
+        } else {
+            std::wcout << L"Invalid format! Please try again.\n";
         }
     }
 
-    {
-        std::stringstream ss(responsePatient);
-        std::string line;
-        std::getline(ss, line); // header: Id,FirstName,LastName,Email,Phone,MedicalId
+    std::wstring pathDoctor = L"/api/Doctor/" + did;
 
-        while (std::getline(ss, line)) {
-            std::stringstream ls(line);
-            std::string id, first, last, pat_email, phone, medId;
-            std::getline(ls, id, ',');
-            std::getline(ls, first, ',');
-            std::getline(ls, last, ',');
-            std::getline(ls, pat_email, ',');
-            std::getline(ls, phone, ',');
-            std::getline(ls, medId, ',');
+    std::string response = getResponseFromBackend(L"CLI-DoctorApp", L"localhost", 5085, pathDoctor, statusCode);
 
-            medId = trim(medId);  // ← helper funkcija
+    std::cout << response << std::endl;
 
-            std::cout << medicalID << " ---- " << medId << std::endl;
-            if (medicalID != medId) {
-                std::cout << "Patient not exist" << std::endl;
-                return false;
-            }
+    if (statusCode != 200) {
+        std::cout << "Doctor doesn't exist in database!" << std::endl << std::endl;
+        return false;
+    }
+
+    valid = false;
+
+    while (!valid) {
+        std::wcout << L"Please enter a valid Patient GUID (XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX): ";
+        std::getline(std::wcin >> std::ws, pid);
+
+        if (Validator::isValidGuid(pid)) {
+            valid = true;
+        } else {
+            std::wcout << L"Invalid format! Please try again.\n";
         }
     }
+
+    std::wstring pathPatient = L"/api/Patient/" + pid;
+
+    response = getResponseFromBackend(L"CLI-DoctorApp", L"localhost", 5085, pathPatient, statusCode);
+
+    std::cout << response << std::endl;
+
+    if (statusCode != 200) {
+        std::cout << "Patient doesn't exist in database!" << std::endl << std::endl;
+        return false;
+    }
+    valid = false;
+
+    while (!valid) {
+        std::wcout << L"Please enter a valid start-date (YYYY-MM-DDTHH:mm:ss.xxxZ): ";
+        std::getline(std::wcin >> std::ws, sdate);
+
+        if (Validator::isValidISO8601(sdate)) {
+            valid = true;
+        } else {
+            std::wcout << L"Invalid format! Please try again.\n";
+        }
+    }
+
+    valid = false;
+
+    while (!valid) {
+        std::wcout << L"Please enter a valid end-date (YYYY-MM-DDTHH:mm:ss.xxxZ): ";
+        std::getline(std::wcin >> std::ws, edate);
+
+        if (Validator::isValidISO8601(edate)) {
+            valid = true;
+        } else {
+            std::wcout << L"Invalid format! Please try again.\n";
+        }
+    }
+
+    std::set<std::wstring> allowedTypes = { L"Consultation", L"Follow-up", L"Emergency" };
+    std::set<std::wstring> allowedStatuses = { L"Scheduled", L"Completed", L"Cancelled" };
+
+    // 2. Validate Type
+    std::wcout << L"Enter Type (Consultation/Follow-up/Emergency): ";
+    std::getline(std::wcin >> std::ws, type);
+
+    if (allowedTypes.find(type) == allowedTypes.end()) {
+        std::wcout << L"Error: Invalid appointment type.\n";
+        return 1;
+    }
+
+    std::wcout << L"Enter Status (Scheduled/Completed/Cancelled): ";
+    std::getline(std::wcin >> std::ws, status);
+
+    if (allowedStatuses.find(status) == allowedStatuses.end()) {
+        std::wcout << L"Error: Invalid appointment status.\n";
+        return 1;
+    }
+
+    std::wcout << L"Enter notes: ";
+    std::getline(std::wcin >> std::ws, notes);
+
+    Appointment a = Appointment(pid,did,sdate,edate,type,status,notes);
+    addSaveAppointment(a);
 
     return true;
 }

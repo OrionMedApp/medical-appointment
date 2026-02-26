@@ -4,29 +4,29 @@
 
 #include "Appointment.hpp"
 
-std::string Appointment::getPatientMedicalID() const {
-    return patientMedicalID;
+std::wstring Appointment::getPatientID() const {
+    return patientID;
 };
 
-std::string Appointment::getDoctorEmail() const {
-    return doctorEmail;
+std::wstring Appointment::getDoctorID() const {
+    return doctorID;
 };
 
-std::string Appointment::getStartDateTime() const {
+std::wstring Appointment::getStartDateTime() const {
     return startDateTime;
 };
-std::string Appointment::getEndDateTime() const {
+std::wstring Appointment::getEndDateTime() const {
     return endDateTime;
 }
 
-std::string Appointment::getType() const {
+std::wstring Appointment::getType() const {
     return type;
 };
 
-std::string Appointment::getStatus() const {
+std::wstring Appointment::getStatus() const {
     return status;
 };
 
-std::string Appointment::getNotes() const {
+std::wstring Appointment::getNotes() const {
     return notes;
 };

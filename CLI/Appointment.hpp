@@ -9,39 +9,39 @@
 
 class Appointment {
 public:
-    Appointment(const std::string& patientMedicalID,
-                const std::string& doctorEmail,
-                const std::string& start,
-                const std::string& end,
-                const std::string& t,
-                const std::string& s,
-                const std::string& n) {
-        this->patientMedicalID = patientMedicalID;
-        this->doctorEmail = doctorEmail;
+    Appointment(const std::wstring& patientID,
+                const std::wstring& doctorID,
+                const std::wstring& start,
+                const std::wstring& end,
+                const std::wstring& t,
+                const std::wstring& s,
+                const std::wstring& n) {
+        this->patientID = patientID;
+        this->doctorID = doctorID;
         this->startDateTime = start;
         this->endDateTime = end;
         this->type = t;
         this->status = s;
         this->notes = n;
 }
-    std::string getPatientMedicalID() const;
-    std::string getDoctorEmail() const;
-    std::string getStartDateTime() const;
-    std::string getEndDateTime() const;
-    std::string getType() const;
-    std::string getStatus() const;
-    std::string getNotes() const;
+    std::wstring getPatientID() const;
+    std::wstring getDoctorID() const;
+    std::wstring getStartDateTime() const;
+    std::wstring getEndDateTime() const;
+    std::wstring getType() const;
+    std::wstring getStatus() const;
+    std::wstring  getNotes() const;
 
-    NLOHMANN_DEFINE_TYPE_INTRUSIVE(Appointment, patientMedicalID, doctorEmail, startDateTime, endDateTime, type, status, notes)
+    NLOHMANN_DEFINE_TYPE_INTRUSIVE(Appointment, patientID, doctorID, startDateTime, endDateTime, type, status, notes)
 
 private:
-    std::string patientMedicalID;
-    std::string doctorEmail;
-    std::string startDateTime;
-    std::string endDateTime;
-    std::string type;
-    std::string status;
-    std::string notes;
+    std::wstring patientID;
+    std::wstring doctorID;
+    std::wstring startDateTime;
+    std::wstring endDateTime;
+    std::wstring type;
+    std::wstring status;
+    std::wstring notes;
 };
 
 #endif //CLI_APPOINTMENT_HPP

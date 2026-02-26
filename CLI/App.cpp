@@ -100,15 +100,15 @@ void App::addPatient() {
 void App::scheduleAppointment() {
     std::cout << "--- Schedule Appointment ---" << std::endl;
 
-    std::string patientMedicalID, doctorEmail, startDateTime, endDateTime, type, status, notes;
-
-    std::cout << "Patient Medical ID: "; std::getline(std::cin >> std::ws, patientMedicalID);
-    std::cout << "Doctor Email: "; std::getline(std::cin >> std::ws, doctorEmail);
-    std::cout << "Start time (YYYY-MM-DDTHH:mm:ss.SSSZ): "; std::getline(std::cin, startDateTime);
-    std::cout << "End time (YYYY-MM-DDTHH:mm:ss.SSSZ): "; std::getline(std::cin, endDateTime);
-    std::cout << "Type (Consultation / Follow-up / Emergency): "; std::getline(std::cin, type);
-    std::cout << "Status(Scheduled / Completed / Cancelled): "; std::getline(std::cin, status);
-    std::cout << "Notes: "; std::getline(std::cin, notes);
+    // std::string patientMedicalID, doctorEmail, startDateTime, endDateTime, type, status, notes;
+    //
+    // std::cout << "Patient Medical ID: "; std::getline(std::cin >> std::ws, patientMedicalID);
+    // std::cout << "Doctor Email: "; std::getline(std::cin >> std::ws, doctorEmail);
+    // std::cout << "Start time (YYYY-MM-DDTHH:mm:ss.SSSZ): "; std::getline(std::cin, startDateTime);
+    // std::cout << "End time (YYYY-MM-DDTHH:mm:ss.SSSZ): "; std::getline(std::cin, endDateTime);
+    // std::cout << "Type (Consultation / Follow-up / Emergency): "; std::getline(std::cin, type);
+    // std::cout << "Status(Scheduled / Completed / Cancelled): "; std::getline(std::cin, status);
+    // std::cout << "Notes: "; std::getline(std::cin, notes);
 
     // if (!Validator::isMandatory(patientMedicalID)) { std::cout << "Validation error: mandatory patient" << std::endl; return; }
     // if (!Validator::isMandatory(doctorEmail)) { std::cout << "Validation error: mandatory doctor" << std::endl; return; }
@@ -124,14 +124,14 @@ void App::scheduleAppointment() {
     // if (!Validator::isValidISO8601(startDateTime)) { std::cout << "Validation error: invalid start date and time ISO 8601 format" << std::endl; return; }
     // if (!Validator::isValidISO8601(endDateTime)) { std::cout << "Validation error: invalid end date and time ISO 8601 format" << std::endl; return; }
 
-    if (!hospitalManager->getDoctorFromBackend(doctorEmail, patientMedicalID)) {
+    if (!hospitalManager->getDoctorFromBackend()) {
         std::cout << "Validation error: Doctor should exists in Database" << std::endl;
         return;
     }
 
-    Appointment appt(patientMedicalID, doctorEmail, startDateTime, endDateTime, type, status, notes);
-    hospitalManager->addSaveAppointment(appt);
-    std::cout << "Valid entered record saved in local JSON." << std::endl << std::endl;
+    // Appointment appt(patientMedicalID, doctorEmail, startDateTime, endDateTime, type, status, notes);
+    // hospitalManager->addSaveAppointment(appt);
+    // std::cout << "Valid entered record saved in local JSON." << std::endl << std::endl;
 }
 
 

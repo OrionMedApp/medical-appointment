@@ -27,7 +27,7 @@ public:
 
     void addSaveAppointment(Appointment& a);
 
-    bool getDoctorFromBackend(const std::string& email, const std::string& medicalID);
+    bool getDoctorFromBackend();
 
 
 private:

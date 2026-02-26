@@ -45,23 +45,19 @@ public:
         return type == "Consultation" || type == "Follow-up" || type == "Emergency";
     }
 
+    static bool isValidGuid(const std::wstring& guid) {
+        const std::wregex guidPattern(L"^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$");
+        return std::regex_match(guid, guidPattern);
+    }
+
     static bool isValidAppointmentStatus(const std::string& status) {
         return status == "Scheduled" || status == "Completed" || status == "Cancelled";
     }
 
-    static bool isValidISO8601(const std::string& dt) {
-        if (dt.length() != 24) return false;
+    static bool isValidISO8601(const std::wstring& ts) {
+        const std::wregex pattern(L"^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}Z$");
 
-        if (dt[4] != '-' || dt[7] != '-' || dt[10] != 'T' ||
-            dt[13] != ':' || dt[16] != ':' || dt[19] != '.' || dt[23] != 'Z') {
-            return false;
-            }
-        for (size_t i = 0; i < 24; ++i) {
-            if (i == 4 || i == 7 || i == 10 || i == 13 || i == 16 || i == 19 || i == 23) continue;
-            if (!isdigit(static_cast<unsigned char>(dt[i]))) return false;
-        }
-
-        return true;
+        return std::regex_match(ts, pattern);
     }
 
     static bool isMandatory(const std::string& field) {
