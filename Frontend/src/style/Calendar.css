@@ -5,6 +5,8 @@
   background: #f8fafc;
   border-radius: 20px;
   padding: 28px;
+  /* ovo je dodato za razmak, ako treba trazi ovde!!!! */
+  margin-bottom: 40px;  
   box-shadow:
     0 20px 50px rgba(0, 0, 0, 0.08),
     0 8px 20px rgba(0, 0, 0, 0.06);

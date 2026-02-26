@@ -9,6 +9,7 @@ import {
   Specialization,
 } from "./CreateDoctorModal";
 import "../style/DoctorsPage.css";
+import "../style/Buttons.css";
 
 type ReturnDoctorDTO = {
   id: string;
@@ -192,6 +193,22 @@ const DoctorsPage = () => {
     }
   };
 
+    const handleExport = () => {
+      window.location.href = "/api/Doctor/export";
+    };
+
+const handleDelete = async (id: string) => {
+  if (!window.confirm("Are you sure you want to delete this doctor?")) return;
+  try {
+    const res = await fetch(`/api/Doctor/${id}`, { method: "DELETE" });
+    if (!res.ok) throw new Error("Delete failed");
+    setAll((prev) => prev.filter((d) => d.id !== id));
+  } catch {
+    alert("Error while deleting doctor.");
+  }
+};
+
+
   return (
     <div className="doctors-page">
       <Sidebar
@@ -239,13 +256,22 @@ const DoctorsPage = () => {
             {q.trim() ? `Found ${total}` : `Total ${all.length}`}
           </span>
         </div>
-
+            
+      <div style={{ display: "flex", gap: "8px" }}>
+        <button
+          className="doctors-export-btn"
+          onClick={handleExport}
+        >
+          ⬇ Export CSV
+        </button>
         <button
           className="doctors-add-btn"
           onClick={() => setIsCreateOpen(true)}
         >
           + Add new doctor
         </button>
+      </div>
+      
       </div>
 
       {/* Pagination */}
@@ -271,11 +297,12 @@ const DoctorsPage = () => {
         </button>
       </div>
 
-      {/* States */}
+    
+      {/* Table */}
+      <div style={{ flex: 1 }}>
       {loading && <div className="doctors-loading">Loading doctors...</div>}
       {!loading && error && <div className="doctors-error">{error}</div>}
 
-      {/* Table */}
       {!loading && !error && (
         <div className="doctors-table-card">
           <table className="doctors-table">
@@ -285,6 +312,7 @@ const DoctorsPage = () => {
                 <th>Specialization</th>
                 <th>Email</th>
                 <th>Phone</th>
+                <th>Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -299,6 +327,15 @@ const DoctorsPage = () => {
                     <td>{d.specialization}</td>
                     <td>{d.email || "-"}</td>
                     <td>{d.phone || "-"}</td>
+                     <td>
+                      <button
+                        className="icon-btn danger"
+                        onClick={() => handleDelete(d.id)}
+                        title="Delete doctor"
+                      >
+                        🗑
+                      </button>
+                    </td>
                   </tr>
                 ))
               )}
@@ -306,7 +343,8 @@ const DoctorsPage = () => {
           </table>
         </div>
       )}
-
+  </div>
+  
       {isCreateOpen && (
         <CreateDoctorModal
           open={isCreateOpen}

@@ -17,6 +17,7 @@ type AppointmentFiltersProps = {
   onDateToChange: (v: string) => void;
   onNewAppointment: () => void;
   onDownloadPdf: () => void;
+  onExportCsv: () => void;
 };
 
 const AppointmentFilters = ({
@@ -35,6 +36,7 @@ const AppointmentFilters = ({
   onDateToChange,
   onNewAppointment,
   onDownloadPdf,
+  onExportCsv,
 }: AppointmentFiltersProps) => {
 
   const hasActiveFilters =
@@ -164,8 +166,14 @@ const AppointmentFilters = ({
 
       </div>
 
-
       <div className="filter-bar__actions">
+
+        <button
+          className="header-btn header-btn--export"
+          onClick={onExportCsv}
+        >
+          ⬇ Export CSV
+        </button>
 
         <button
           className="header-btn header-btn--secondary"
