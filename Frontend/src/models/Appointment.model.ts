@@ -2,7 +2,7 @@ export interface Appointment {
   id: string;                
   doctor: string;            
   patient: string;           
-  type: string;              
+  type: AppointmentType;              
   status: AppointmentStatus; 
   start: Date;
   end: Date;
@@ -22,4 +22,10 @@ export enum AppointmentStatus {
   Scheduled = "Scheduled",
   Completed = "Completed",
   Cancelled = "Cancelled",
+}
+
+export enum AppointmentType {
+  Consulatation = "Consulatation",
+  FollowUp = "FollowUp",
+  Emergency = "Emergency"
 }
