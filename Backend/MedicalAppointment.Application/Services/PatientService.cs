@@ -35,35 +35,37 @@ namespace MedicalAppointment.Application.Services
         {
             Guid medicalId = Guid.NewGuid();
             Patient newPatient = new Patient(patient.FirstName, patient.LastName, patient.Email, patient.Phone, medicalId);
-                
+
             var created = await _repository.AddAsync(newPatient);
             return created;
         }
 
 
-        public async Task<List<ReturnPatientDTO>> GetAllAsync(int page = 1, int pageSize = 20)
+        public async Task<List<ReturnPatientDTO>> GetAllAsync(int? page = null, int? pageSize = null)
         {
-            
+
             var patients = await _repository.GetAllAsync();
 
-            
-            var paged = patients
-                .Skip((page - 1) * pageSize)
-                .Take(pageSize)
-                .Select(p => new ReturnPatientDTO
-                {
-                    Id = p.Id,
-                    FirstName = p.FirstName,
-                    LastName = p.LastName,
-                    Email = p.Email,
-                    Phone = p.Phone,
-                    MedicalId = p.MedicalId
-                })
-                .ToList();
+            if (page.HasValue && pageSize.HasValue)
+            {
+                patients = patients
+                    .Skip((page.Value - 1) * pageSize.Value)
+                    .Take(pageSize.Value)
+                    .ToList();
+            }
 
-            return paged;
+            return patients.Select(p => new ReturnPatientDTO
+            {
+                Id = p.Id,
+                FirstName = p.FirstName,
+                LastName = p.LastName,
+                Email = p.Email,
+                Phone = p.Phone,
+                MedicalId = p.MedicalId
+            })
+            .ToList();
         }
-    
+
         public async Task<bool> DeleteAsync(Guid id)
         {
             var patient = await _repository.GetByIdAsync(id);
@@ -133,7 +135,7 @@ namespace MedicalAppointment.Application.Services
                 try
                 {
                     Patient entity = new Patient(dto.FirstName, dto.LastName, dto.Email, dto.Phone, Guid.NewGuid());
-                    
+
 
                     await _repository.AddAsync(entity);
 

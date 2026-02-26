@@ -85,8 +85,80 @@ namespace MedicalAppointment.Infrastructure.Data
                 await context.SaveChangesAsync();
             }
 
-            var allAvailableSlots = context.AvailabilitySlots.ToList();
 
+            if (!context.Appointments.Any())
+            {
+                var slots = await context.AvailabilitySlots
+                    .AsNoTracking()
+                    .Where(s => s.StartTime >= DateTime.UtcNow)
+                    .OrderBy(s => s.DoctorId)
+                    .ThenBy(s => s.StartTime)
+                    .ToListAsync();
+
+                var slotByDoctorAndStart = slots.ToDictionary(
+                    s => (s.DoctorId, s.StartTime),
+                    s => s
+                );
+
+                var takenSlotKeys = new HashSet<(Guid DoctorId, DateTime StartTime)>();
+
+                var appointments = new List<Appointment>();
+
+                var target = doctors.Count * 2;
+                var maxAttempts = target * 20;
+
+                for (int attempt = 0; attempt < maxAttempts && appointments.Count < target; attempt++)
+                {
+                    var doctor = faker.PickRandom(doctors);
+                    var patient = faker.PickRandom(patients);
+
+                    var doctorSlots = slots.Where(s => s.DoctorId == doctor.Id).ToList();
+                    if (doctorSlots.Count == 0) continue;
+
+                    var first = faker.PickRandom(doctorSlots);
+
+                    var slotCount = faker.Random.Bool(0.7f) ? 2 : 3;
+
+                    var chain = new List<AvailablilitySlot> { first };
+                    var ok = true;
+
+                    for (int i = 1; i < slotCount; i++)
+                    {
+                        var nextStart = chain[i - 1].EndTime;
+                        if (!slotByDoctorAndStart.TryGetValue((doctor.Id, nextStart), out var nextSlot))
+                        {
+                            ok = false;
+                            break;
+                        }
+                        chain.Add(nextSlot);
+                    }
+
+                    if (!ok) continue;
+
+                    if (chain.Any(s => takenSlotKeys.Contains((s.DoctorId, s.StartTime))))
+                        continue;
+
+                    foreach (var s in chain)
+                        takenSlotKeys.Add((s.DoctorId, s.StartTime));
+
+                    var start = chain.First().StartTime;
+                    var end = chain.Last().EndTime;
+
+                    var appt = new Appointment(
+                        patient.Id,
+                        doctor.Id,
+                        faker.PickRandom<AppointmentType>(),
+                        start,
+                        end,
+                        faker.Lorem.Sentences(2)
+                    );
+
+                    appointments.Add(appt);
+                }
+
+                context.Appointments.AddRange(appointments);
+                await context.SaveChangesAsync();
+            }
         }
-    }
+        }
 }

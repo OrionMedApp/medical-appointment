@@ -111,26 +111,27 @@ namespace MedicalAppointment.Application.Services
             return true;
         }
 
-        public async Task<List<ReturnDoctorDTO>> GetAllAsync(int page = 1, int pageSize = 20)
+        public async Task<List<ReturnDoctorDTO>> GetAllAsync(int? page = null, int? pageSize = null)
         {
             var doctors = await _repository.GetAllAsync();
 
+            if (page.HasValue && pageSize.HasValue)
+            {
+                doctors = doctors
+                    .Skip((page.Value - 1) * pageSize.Value)
+                    .Take(pageSize.Value)
+                    .ToList();
+            }
 
-            var paged = doctors
-                .Skip((page - 1) * pageSize)
-                .Take(pageSize)
-                .Select(p => new ReturnDoctorDTO
-                {
-                    Id = p.Id,
-                    FirstName = p.FirstName,
-                    LastName = p.LastName,
-                    Email = p.Email,
-                    Phone = p.Phone,
-                    Specialization = p.Specialization
-                })
-                .ToList();
-
-            return paged;
+            return doctors.Select(p => new ReturnDoctorDTO
+            {
+                Id = p.Id,
+                FirstName = p.FirstName,
+                LastName = p.LastName,
+                Email = p.Email,
+                Phone = p.Phone,
+                Specialization = p.Specialization
+            }).ToList();
         }
 
         public async Task<byte[]> GetAllDoctorsCsvAsync()
