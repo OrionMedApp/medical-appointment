@@ -273,45 +273,89 @@ namespace MedicalAppointment.Application.Services
             return _csvExporter.ExportAppointments(dtoList);
         }
 
-        public async Task<BulkInsertAppointmentsResponse> BulkInsertAsync(List<CreateAppointmentDTO> appointments)
+        public async Task<BulkInsertAppointmentsResponse> BulkInsertAsync(List<CreateAppointmentBulkDTO> appointments)
         {
             var response = new BulkInsertAppointmentsResponse();
+            if (appointments == null || appointments.Count == 0)
+                return response;
 
-            foreach (var dto in appointments)
+            var medicalIds = appointments
+                .Select(a => a.PatientMedicalId)
+                .Distinct()
+                .ToList();
+
+            var doctorEmails = appointments
+                .Where(a => !string.IsNullOrWhiteSpace(a.DoctorEmail))
+                .Select(a => a.DoctorEmail.Trim())
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToList();
+
+            var patients = await _patientRepository.GetByMedicalIdsAsync(medicalIds);
+            var doctors = await _doctorRepository.GetByEmailsAsync(doctorEmails);
+
+            var patientByMedicalId = patients.ToDictionary(p => p.MedicalId, p => p.Id);
+
+            var doctorByEmail = doctors
+                .Where(d => !string.IsNullOrWhiteSpace(d.Email))
+                .ToDictionary(d => d.Email!.Trim().ToLowerInvariant(), d => d.Id);
+
+            foreach (var bulk in appointments)
             {
-                var validationError = Validate(dto);
+                var createDto = new CreateAppointmentDTO
+                {
+                    PatientId = Guid.Empty,
+                    DoctorId = Guid.Empty,
+                    Type = bulk.Type,
+                    Status = bulk.Status,
+                    StartTime = bulk.StartTime,
+                    EndTime = bulk.EndTime,
+                    Notes = bulk.Notes
+                };
+                var validationError = Validate(bulk);
 
                 if (validationError != null)
                 {
                     response.FailedRecords.Add(new FailedAppointmentsRecord
                     {
-                        Appointment = dto,
+                        Appointment = createDto,
                         Error = validationError
                     });
                     continue;
                 }
+                if (!patientByMedicalId.TryGetValue(bulk.PatientMedicalId, out var patientId))
+                {
+                    response.FailedRecords.Add(new FailedAppointmentsRecord
+                    {
+                        Appointment = createDto,
+                        Error = $"Patient does not exist (medicalId: {bulk.PatientMedicalId})"
+                    });
+                    continue;
+                }
+
+                var normalizedEmail = bulk.DoctorEmail.Trim().ToLowerInvariant();
+                if (!doctorByEmail.TryGetValue(normalizedEmail, out var doctorId))
+                {
+                    response.FailedRecords.Add(new FailedAppointmentsRecord
+                    {
+                        Appointment = createDto,
+                        Error = $"Doctor does not exist (email: {bulk.DoctorEmail})"
+                    });
+                    continue;
+                }
+
+                createDto.PatientId = patientId;
+                createDto.DoctorId = doctorId;
 
                 try
                 {
-                    Appointment entity = new Appointment(
-                       dto.PatientId,
-                       dto.DoctorId,
-                       dto.Type,
-                       dto.StartTime,
-                       dto.EndTime,
-                       dto.Notes
-                   );
-                    entity.Status = dto.Status;
-
-                    await _repository.AddAsync(entity);
-
-                    response.SavedIds.Add(entity.Id);
+                    var created = await CreateAsync(createDto);
+                    response.SavedIds.Add(created.Id);
                 }
                 catch (Exception ex)
                 {
                     response.FailedRecords.Add(new FailedAppointmentsRecord
                     {
-                        Appointment = dto,
+                        Appointment = createDto,
                         Error = ex.Message
                     });
                 }
@@ -320,13 +364,13 @@ namespace MedicalAppointment.Application.Services
             return response;
         }
 
-        private string? Validate(CreateAppointmentDTO dto)
+        private string? Validate(CreateAppointmentBulkDTO dto)
         {
-            if (dto.PatientId == Guid.Empty)
-                return "PatientId must be a valid GUID";
+            if (dto.PatientMedicalId == Guid.Empty)
+                return "PatientMedicalId must be a valid GUID";
 
-            if (dto.DoctorId == Guid.Empty)
-                return "DoctorId must be a valid GUID";
+            if (string.IsNullOrWhiteSpace(dto.DoctorEmail))
+                return "DoctorEmail must be a valid email";
 
             if (dto.StartTime >= dto.EndTime)
                 return "StartTime must be before EndTime";

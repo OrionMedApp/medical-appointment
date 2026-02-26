@@ -33,6 +33,6 @@ namespace MedicalAppointment.Application.IServices
        string? sortBy,
        bool sortDesc
    );
-        Task<BulkInsertAppointmentsResponse> BulkInsertAsync(List<CreateAppointmentDTO> appointments);
+        Task<BulkInsertAppointmentsResponse> BulkInsertAsync(List<CreateAppointmentBulkDTO> appointments);
     }
 }

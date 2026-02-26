@@ -119,7 +119,7 @@ namespace MedicalAppointment.Api.Controllers
         }
 
         [HttpPost("bulk")]
-        public async Task<IActionResult> BulkInsert([FromBody] List<CreateAppointmentDTO> appointments)
+        public async Task<IActionResult> BulkInsert([FromBody] List<CreateAppointmentBulkDTO> appointments)
         {
             if (appointments == null || !appointments.Any())
                 return BadRequest("Appointments list cannot be empty.");
