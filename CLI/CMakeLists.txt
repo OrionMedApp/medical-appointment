@@ -14,5 +14,7 @@ add_executable(Project
         Validator.hpp
         Patient.cpp
         Patient.hpp
+        HttpClient.cpp
+        HttpClient.hpp
 )
 target_link_libraries(Project winhttp ole32 uuid)

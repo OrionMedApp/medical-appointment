@@ -107,7 +107,7 @@ void App::stateMachine() {
             case STORE_ENTRIES:
             case TRACK_APPOINTMENTS:
             case SYNC_DOCTORS:
-                hospitalManager->fetchDoctorsFromBackend();
+                hospitalManager->fetchFileFromBackend(L"CLI-DoctorApp",L"localhost", 5085, L"/api/Doctor/export", "doctors");
                 break;
             case EXIT:
                 isRunning = false;
