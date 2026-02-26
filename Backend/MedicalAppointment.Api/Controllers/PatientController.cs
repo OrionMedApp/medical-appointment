@@ -42,7 +42,7 @@ namespace MedicalAppointment.Api.Controllers
             }
         }
         [HttpGet]
-        public async Task<ActionResult<List<ReturnPatientDTO>>> GetAll([FromQuery] int page = 1, [FromQuery] int pageSize = 20)
+        public async Task<ActionResult<List<ReturnPatientDTO>>> GetAll([FromQuery] int? page = null, [FromQuery] int? pageSize = null)
         {
             var patients = await _service.GetAllAsync(page, pageSize);
             return Ok(patients);
