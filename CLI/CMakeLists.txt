@@ -16,5 +16,8 @@ add_executable(Project
         Patient.hpp
         HttpClient.cpp
         HttpClient.hpp
+        Appointment.cpp
+        Appointment.hpp
+
 )
 target_link_libraries(Project winhttp ole32 uuid)

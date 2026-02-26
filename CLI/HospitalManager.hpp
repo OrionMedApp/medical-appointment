@@ -5,10 +5,11 @@
 #ifndef CLI_HOSPITALMANAGER_HPP
 #define CLI_HOSPITALMANAGER_HPP
 #include <vector>
+#include <string>
 
 #include "Doctor.hpp"
 #include "Patient.hpp"
-
+#include "Appointment.hpp"
 
 class HospitalManager {
 
@@ -21,6 +22,13 @@ public:
     void trackAppointments();
 
     void exportResponseToAFile(std::string& response, std::string file_name);
+
+    bool fetchDoctorsFromBackend();
+
+    void addSaveAppointment(Appointment& a);
+
+    bool getDoctorFromBackend(const std::string& email, const std::string& medicalID);
+
 
 private:
     std::vector<Doctor> doctors;

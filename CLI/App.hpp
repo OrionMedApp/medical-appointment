@@ -29,6 +29,8 @@ private:
     int chooseOption();
     void addDoctor();
     void addPatient();
+    void scheduleAppointment();
+
 };
 
 

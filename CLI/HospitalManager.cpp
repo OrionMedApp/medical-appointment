@@ -16,6 +16,8 @@
 #include <chrono>
 #include <set>
 #include <thread>
+#include <locale>
+
 
 #include "HttpClient.hpp"
 
@@ -23,6 +25,14 @@
 
 using json = nlohmann::json;
 
+
+static std::string trim(const std::string& str) {
+    std::string s = str;
+
+    s.erase(0, s.find_first_not_of(" \t\n\r\f\"'"));
+    s.erase(s.find_last_not_of(" \t\n\r\f\"'") + 1);
+    return s;
+}
 
 void HospitalManager::addSaveDoctor(Doctor &d) {
     std::ifstream inFile(doctors_file);
@@ -73,6 +83,22 @@ void HospitalManager::exportResponseToAFile(std::string &response, std::string f
     outFile.close();
     std::cout << "File saved" << std::endl << std::endl;
 }
+void HospitalManager::addSaveAppointment(Appointment& a) {
+    std::ifstream inFile(appointments_file);
+    json appointments;
+    if (inFile.good()) {
+        inFile >> appointments;
+        inFile.close();
+    } else {
+        appointments = json::array();
+    }
+
+    appointments.push_back(a);
+
+    std::ofstream outFile(appointments_file);
+    outFile << appointments.dump(4);
+    outFile.close();
+}
 
 std::string HospitalManager::getResponseFromBackend(const std::wstring &appName, const std::wstring &host,
                                                     const int &port, const std::wstring &path, DWORD &statusCode) {
@@ -85,6 +111,74 @@ std::string HospitalManager::getResponseFromBackend(const std::wstring &appName,
 
     return response;
 }
+
+bool HospitalManager::getDoctorFromBackend(const std::string& email, const std::string& medicalID) {
+    DWORD statusCode = 0;
+    std::wstring pathDoctor = L"/api/Doctor/export";
+
+    std::wstring pathPatient = L"/api/Patient/export";
+
+    std::string responseDoctor = getResponseFromBackend(L"CLI-DoctorApp", L"localhost", 5085, pathDoctor, statusCode);
+    if (statusCode != 200)return false;
+    std::string responsePatient = getResponseFromBackend(L"CLI-DoctorApp", L"localhost", 5085, pathPatient, statusCode);
+    if (statusCode != 200)return false;
+
+    std::cout << responseDoctor << std::endl;
+    std::cout << responsePatient << std::endl;
+
+    {
+        std::stringstream ss(responsePatient);
+        std::string line;
+        std::getline(ss, line); // header: Id,FirstName,LastName,Email,Phone,MedicalId
+
+        while (std::getline(ss, line)) {
+            std::stringstream ls(line);
+            std::string id, first, last, pat_email, phone, medId;
+            std::getline(ls, id, ',');
+            std::getline(ls, first, ',');
+            std::getline(ls, last, ',');
+            std::getline(ls, pat_email, ',');
+            std::getline(ls, phone, ',');
+            std::getline(ls, medId, ',');
+
+            medId = trim(medId);  // ← helper funkcija
+
+
+            if (medicalID != medId) {
+                std::cout << "Patient not exist" << std::endl;
+                return false;
+            }
+        }
+    }
+
+    {
+        std::stringstream ss(responsePatient);
+        std::string line;
+        std::getline(ss, line); // header: Id,FirstName,LastName,Email,Phone,MedicalId
+
+        while (std::getline(ss, line)) {
+            std::stringstream ls(line);
+            std::string id, first, last, pat_email, phone, medId;
+            std::getline(ls, id, ',');
+            std::getline(ls, first, ',');
+            std::getline(ls, last, ',');
+            std::getline(ls, pat_email, ',');
+            std::getline(ls, phone, ',');
+            std::getline(ls, medId, ',');
+
+            medId = trim(medId);  // ← helper funkcija
+
+            std::cout << medicalID << " ---- " << medId << std::endl;
+            if (medicalID != medId) {
+                std::cout << "Patient not exist" << std::endl;
+                return false;
+            }
+        }
+    }
+
+    return true;
+}
+
 
 void HospitalManager::trackAppointments() {
     DWORD statusCode = 0;
