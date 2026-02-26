@@ -107,7 +107,6 @@ void App::stateMachine() {
             case STORE_ENTRIES:
             case TRACK_APPOINTMENTS:
                 hospitalManager->trackAppointments();
-                FlushConsoleInputBuffer(GetStdHandle(STD_INPUT_HANDLE));
                 break;
             case SYNC_DOCTORS: {
                 DWORD statusCode = 0;
