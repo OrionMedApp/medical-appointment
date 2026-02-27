@@ -254,7 +254,7 @@
 
 /* ── Table card ──────────────────────────────── */
 .patients-table-card {
-  margin-top: 14px;
+  margin-bottom: 40px;
   background: var(--patients-surface);
   border-radius: var(--patients-radius);
   border: 1.5px solid var(--patients-border);
@@ -378,4 +378,47 @@
     box-shadow: none;
     border: 1px solid #ccc;
   }
+}
+
+.patients-export-btn {
+  height: 38px;
+  padding: 0 18px;
+  border-radius: var(--doctors-radius-sm);
+  border: 1.5px solid var(--doctors-accent);
+  background: transparent;
+  color: var(--doctors-accent);
+  font-family: var(--font-main);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: background 0.18s, transform 0.12s;
+  white-space: nowrap;
+}
+
+.patients-export-btn:hover {
+  background: var(--doctors-accent-soft);
+  transform: translateY(-1px);
+}
+
+.patients-export-btn:active {
+  transform: translateY(0);
+}
+
+.patients-delete-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 15px;
+  padding: 4px 6px;
+  border-radius: 6px;
+  opacity: 0.4;
+  transition: opacity 0.15s, background 0.15s;
+}
+
+.patients-delete-btn:hover {
+  opacity: 1;
+  background: #fee2e2;
 }

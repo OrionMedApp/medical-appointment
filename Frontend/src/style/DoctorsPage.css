@@ -29,7 +29,7 @@
   flex-direction: column;
   font-family: var(--font-main);
   color: var(--doctors-text-primary);
-  animation: doctors-fadein 0.35s ease both;
+  animation: doctors-fadein 0.35s ease both; 
 }
 
 @keyframes doctors-fadein {
@@ -329,5 +329,32 @@
     width: 100%;
     justify-content: center;
   }
+}
+
+.doctors-export-btn {
+  height: 38px;
+  padding: 0 18px;
+  border-radius: var(--doctors-radius-sm);
+  border: 1.5px solid var(--doctors-accent);
+  background: transparent;
+  color: var(--doctors-accent);
+  font-family: var(--font-main);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: background 0.18s, transform 0.12s;
+  white-space: nowrap;
+}
+
+.doctors-export-btn:hover {
+  background: var(--doctors-accent-soft);
+  transform: translateY(-1px);
+}
+
+.doctors-export-btn:active {
+  transform: translateY(0);
 }
 

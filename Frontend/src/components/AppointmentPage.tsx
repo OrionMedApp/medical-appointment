@@ -122,6 +122,11 @@ const AppointmentsPage = () => {
     });
   }, [appointments, selectedDoctor, selectedType, selectedPatient, dateFrom, dateTo]);
 
+
+  const handleExportCsv = () => {
+  window.location.href = "/api/Appointment/export";
+};
+
   return (
 <div style={{ padding: "20px", minHeight: "100vh", display: "flex", flexDirection: "column" }}>
       <Sidebar
@@ -156,19 +161,20 @@ const AppointmentsPage = () => {
         onDateToChange={setDateTo}
         onNewAppointment={() => { setEditingAppointment(null); setIsModalOpen(true); }}
         onDownloadPdf={() => window.print()}
+        onExportCsv={handleExportCsv}
       />
 
-      {loading && <div style={{ padding: 12 }}>Loading...</div>}
-      {!loading && error && <div style={{ padding: 12, color: "crimson" }}>{error}</div>}
-
-      {!loading && !error && (
-        <AppointmentCalendar
-          appointments={filteredAppointments}
-          onEdit={handleEdit}
-          onDelete={handleDelete}
-        />
-      )}
-
+    <div style={{ flex: 1 }}>
+        {loading && <div style={{ padding: 12 }}>Loading...</div>}
+        {!loading && error && <div style={{ padding: 12, color: "crimson" }}>{error}</div>}
+        {!loading && !error && (
+          <AppointmentCalendar
+            appointments={filteredAppointments}
+            onEdit={handleEdit}
+            onDelete={handleDelete}
+          />
+        )}
+    </div>
       <div className="print-only">
   <div style={{ display: "flex", alignItems: "center", gap: "92px" }}>
     <h1 className="print-title">Appointment Schedule</h1>

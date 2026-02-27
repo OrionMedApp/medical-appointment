@@ -5,6 +5,7 @@ import AppointmentHeader from "./AppointmentHeader";
 import { CreatePatientModal, CreatePatientDTO } from "./CreatePatientModal";
 import PatientHistoryModal from "./PatientHistoryModal";
 import "../style/PatientsPage.css";
+import "../style/Buttons.css";
 import Emergency from "./Emergency";
 
 type ReturnPatientDTO = {
@@ -140,6 +141,22 @@ const PatientsPage = () => {
     setHistoryPatientName("");
   };
 
+  const handleExport = () => {
+  window.location.href = "/api/Patient/export";
+  };
+
+
+  const handleDelete = async (id: string, e: React.MouseEvent) => {
+  e.stopPropagation();
+  if (!window.confirm("Are you sure you want to delete this patient?")) return;
+  try {
+    const res = await fetch(`/api/Patient/${id}`, { method: "DELETE" });
+    if (!res.ok) throw new Error("Delete failed");
+    setAll((prev) => prev.filter((p) => p.id !== id));
+  } catch {
+    alert("Error while deleting patient.");
+  }
+};
   return (
     <div className="patients-page">
       <Sidebar
@@ -188,9 +205,19 @@ const PatientsPage = () => {
           </span>
         </div>
 
+        
+
+         <div style={{ display: "flex", gap: "8px" }}>
+        <button
+          className="patients-export-btn"
+          onClick={handleExport}
+        >
+          ⬇ Export CSV
+        </button>
         <button className="patients-add-btn" onClick={() => setIsCreateOpen(true)}>
           + Add new patient
         </button>
+      </div>
       </div>
 
       {/* Pagination */}
@@ -216,9 +243,9 @@ const PatientsPage = () => {
         </button>
       </div>
 
-      {/* States */}
-      {loading && <div className="patients-loading">Loading patients...</div>}
-      {!loading && error && <div className="patients-error">{error}</div>}
+      <div style={{ flex: 1 }}>
+        {loading && <div className="patients-loading">Loading patients...</div>}
+        {!loading && error && <div className="patients-error">{error}</div>}
 
       {/* Table */}
       {!loading && !error && (
@@ -230,6 +257,7 @@ const PatientsPage = () => {
                 <th>Email</th>
                 <th>Phone</th>
                 <th>Medical ID</th>
+                <th>Actions</th> 
               </tr>
             </thead>
             <tbody>
@@ -249,6 +277,15 @@ const PatientsPage = () => {
                     <td>{p.email || "-"}</td>
                     <td>{p.phone || "-"}</td>
                     <td>{p.medicalId}</td>
+                    <td>
+                   <button
+                        className="icon-btn danger"
+                        onClick={(e) => handleDelete(p.id, e)}
+                        title="Delete patient"
+                      >
+                        🗑
+                      </button>
+                    </td>
                   </tr>
                 ))
               )}
@@ -256,7 +293,8 @@ const PatientsPage = () => {
           </table>
         </div>
       )}
-
+      </div>
+      
       {isCreateOpen && (
         <CreatePatientModal
           open={isCreateOpen}
