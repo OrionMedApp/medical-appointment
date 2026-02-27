@@ -50,6 +50,10 @@ namespace MedicalAppointment.Infrastructure.Data
 
             if (!context.AvailabilitySlots.Any())
             {
+                var from = DateTime.UtcNow.Date.AddDays(1);
+                var until = from.AddMonths(2);
+                var days = (int)(until - from).TotalDays;
+
                 var allSlots = new List<AvailablilitySlot>();
 
                 foreach (var doctor in doctors)
@@ -70,8 +74,8 @@ namespace MedicalAppointment.Infrastructure.Data
 
                     var slots = SeedHelpers.GenerateForDays(
                         doctor.Id,
-                        DateTime.UtcNow.Date.AddDays(1),
-                        7,
+                        from,
+                        days,
                         new TimeSpan(startHour, 0, 0),
                         new TimeSpan(endHour, 0, 0),
                         breakStart,
@@ -85,15 +89,19 @@ namespace MedicalAppointment.Infrastructure.Data
                 await context.SaveChangesAsync();
             }
 
-
             if (!context.Appointments.Any())
             {
+                var from = DateTime.UtcNow.Date.AddDays(1);
+                var until = from.AddMonths(2);
+
                 var slots = await context.AvailabilitySlots
                     .AsNoTracking()
-                    .Where(s => s.StartTime >= DateTime.UtcNow)
+                    .Where(s => s.StartTime >= from && s.StartTime < until)
                     .OrderBy(s => s.DoctorId)
                     .ThenBy(s => s.StartTime)
                     .ToListAsync();
+
+                if (slots.Count == 0) return;
 
                 var slotByDoctorAndStart = slots.ToDictionary(
                     s => (s.DoctorId, s.StartTime),
@@ -101,18 +109,21 @@ namespace MedicalAppointment.Infrastructure.Data
                 );
 
                 var takenSlotKeys = new HashSet<(Guid DoctorId, DateTime StartTime)>();
-
                 var appointments = new List<Appointment>();
 
-                var target = doctors.Count * 2;
-                var maxAttempts = target * 20;
+                var target = doctors.Count * 10;
+                var maxAttempts = target * 50;
+
+                var firstCandidates = slots
+                    .Where(s => s.EndTime < until)
+                    .ToList();
 
                 for (int attempt = 0; attempt < maxAttempts && appointments.Count < target; attempt++)
                 {
                     var doctor = faker.PickRandom(doctors);
                     var patient = faker.PickRandom(patients);
 
-                    var doctorSlots = slots.Where(s => s.DoctorId == doctor.Id).ToList();
+                    var doctorSlots = firstCandidates.Where(s => s.DoctorId == doctor.Id).ToList();
                     if (doctorSlots.Count == 0) continue;
 
                     var first = faker.PickRandom(doctorSlots);
@@ -125,11 +136,15 @@ namespace MedicalAppointment.Infrastructure.Data
                     for (int i = 1; i < slotCount; i++)
                     {
                         var nextStart = chain[i - 1].EndTime;
+
+                        if (nextStart >= until) { ok = false; break; }
+
                         if (!slotByDoctorAndStart.TryGetValue((doctor.Id, nextStart), out var nextSlot))
                         {
                             ok = false;
                             break;
                         }
+
                         chain.Add(nextSlot);
                     }
 
@@ -160,5 +175,5 @@ namespace MedicalAppointment.Infrastructure.Data
                 await context.SaveChangesAsync();
             }
         }
-        }
+    }
 }
