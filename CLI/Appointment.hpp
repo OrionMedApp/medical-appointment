@@ -6,6 +6,9 @@
 #define CLI_APPOINTMENT_HPP
 #include <string>
 #include "json.hpp"
+#include <locale>
+#include <codecvt>
+
 
 class Appointment {
 public:
@@ -43,5 +46,21 @@ private:
     std::wstring status;
     std::wstring notes;
 };
+namespace nlohmann {
+    template <>
+    struct adl_serializer<std::wstring> {
+        static void to_json(json& j, const std::wstring& str) {
+            // wstring -> UTF-8 string za JSON
+            std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
+            std::string utf8_str = converter.to_bytes(str);
+            j = utf8_str;
+        }
 
+        static void from_json(const json& j, std::wstring& str) {
+            // JSON string -> wstring
+            std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
+            str = converter.from_bytes(j.get<std::string>());
+        }
+    };
+}
 #endif //CLI_APPOINTMENT_HPP

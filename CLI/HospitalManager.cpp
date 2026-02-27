@@ -34,6 +34,13 @@ static std::string trim(const std::string& str) {
     s.erase(s.find_last_not_of(" \t\n\r\f\"'") + 1);
     return s;
 }
+static std::wstring wtrim(const std::wstring& str) {
+    std::wstring s = str;
+    s.erase(0, s.find_first_not_of(L" \t\n\r\f\"'"));
+    s.erase(s.find_last_not_of(L" \t\n\r\f\"'") + 1);
+    return s;
+}
+
 
 void HospitalManager::addSaveDoctor(Doctor &d) {
     std::ifstream inFile(doctors_file);
@@ -212,6 +219,10 @@ bool HospitalManager::getDoctorFromBackend() {
 
     std::wcout << L"Enter notes: ";
     std::getline(std::wcin >> std::ws, notes);
+
+    type = wtrim(type);
+    status = wtrim(status);
+    notes = wtrim(notes);
 
     Appointment a = Appointment(pid,did,sdate,edate,type,status,notes);
     addSaveAppointment(a);
