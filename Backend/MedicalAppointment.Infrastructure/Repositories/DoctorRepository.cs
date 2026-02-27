@@ -22,8 +22,6 @@ namespace MedicalAppointment.Infrastructure.Repositories
         public async Task<Doctor?> GetByIdAsync(Guid id)
         {
             return await _context.Doctors
-                .Include(p => p.Appointments)
-                .Include(p=>p.AvailableSlots)
                 .FirstOrDefaultAsync(p => p.Id == id);
         }
         public async Task AddAsync(Doctor doctor)
@@ -47,5 +45,21 @@ namespace MedicalAppointment.Infrastructure.Repositories
             _context.Doctors.Remove(doctor);
             await _context.SaveChangesAsync();
         }
+        public async Task<List<Doctor>> GetByEmailsAsync(IEnumerable<string> emails)
+        {
+            var normalized = emails
+                .Where(x => !string.IsNullOrWhiteSpace(x))
+                .Select(NormalizeEmail)
+                .Distinct()
+                .ToList();
+
+            if (normalized.Count == 0) return new List<Doctor>();
+
+            return await _context.Doctors
+                .Where(d => d.Email != null && normalized.Contains(d.Email.ToLower()))
+                .ToListAsync();
+        }
+        private static string NormalizeEmail(string email)
+        => email.Trim().ToLowerInvariant();
     }
 }

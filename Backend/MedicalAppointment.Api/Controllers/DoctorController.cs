@@ -1,6 +1,7 @@
 ﻿using MedicalAppointment.Application.DTOs.Doctor;
 using MedicalAppointment.Application.DTOs.Patient;
 using MedicalAppointment.Application.IServices;
+using MedicalAppointment.Application.Services;
 using MedicalAppointment.Domain.Entities;
 using MedicalAppointment.Domain.Exceptions;
 using Microsoft.AspNetCore.Mvc;
@@ -50,7 +51,7 @@ namespace MedicalAppointment.Api.Controllers
             return Ok(doctor);
         }
         [HttpGet]
-        public async Task<ActionResult<List<ReturnDoctorDTO>>> GetAll([FromQuery] int page = 1, [FromQuery] int pageSize = 20)
+        public async Task<ActionResult<List<ReturnDoctorDTO>>> GetAll([FromQuery] int? page, [FromQuery] int? pageSize)
         {
             var doctors = await _service.GetAllAsync(page, pageSize);
             return Ok(doctors);
@@ -90,5 +91,40 @@ namespace MedicalAppointment.Api.Controllers
 
             return NoContent();
         }
+
+        [HttpGet("export")]
+        public async Task<IActionResult> ExportDoctorsCsv()
+        {
+            var csvBytes = await _service.GetAllDoctorsCsvAsync();
+            return File(csvBytes, "text/csv", "doctors.csv");
+        }
+
+
+
+
+        
+        [HttpGet("available-slots")]
+        public async Task<IActionResult> GetAvailableSlots(
+    [FromQuery] Guid? doctorId,
+    [FromQuery] DateTime? date)
+        {
+            var result = await _service.GetAvailableSlotsByDoctorAndDate(doctorId, date);
+            return Ok(result);
+        }
+    
+
+        [HttpPost("bulk")]
+        public async Task<IActionResult> BulkInsert([FromBody] List<CreateDoctorDTO> doctors)
+        {
+            if (doctors == null || !doctors.Any())
+                return BadRequest("Doctors list cannot be empty.");
+
+            var result = await _service.BulkInsertAsync(doctors);
+
+            return Ok(result);
+        }
+
+
+
     }
 }

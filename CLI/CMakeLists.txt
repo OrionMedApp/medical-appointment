@@ -12,4 +12,12 @@ add_executable(Project
         HospitalManager.hpp
         Validator.cpp
         Validator.hpp
+        Patient.cpp
+        Patient.hpp
+        HttpClient.cpp
+        HttpClient.hpp
+        Appointment.cpp
+        Appointment.hpp
+
 )
+target_link_libraries(Project winhttp ole32 uuid)

@@ -1,4 +1,5 @@
 ﻿using MedicalAppointment.Application.DTOs.Appointment;
+using MedicalAppointment.Application.DTOs.Doctor;
 using MedicalAppointment.Domain.Entities;
 using System;
 using System.Collections.Generic;
@@ -18,6 +19,23 @@ namespace MedicalAppointment.Application.IServices
         Task<bool> DeleteAsync(Guid id);
 
         Task<List<ReturnAppointmentDTO>> GetAllAsync();
+        Task<byte[]> GetAllAppointmentsCsvAsync();
 
+        Task<(Doctor doctor, DateTime start, DateTime end)> ScheduleFromIntentAsync(
+            Patient patient,
+            Specialization specialization,
+            AppointmentType type);
+        Task<List<ReturnAppointmentDTO>> GetAllFilteredAsync(
+       Guid? doctorId,
+       Guid? patientId,
+       AppointmentType? type,
+       AppointmentStatus? status,
+       DateTime? startFrom,
+       DateTime? startTo,
+       string? notesContains,
+       string? sortBy,
+       bool sortDesc
+   );
+        Task<BulkInsertAppointmentsResponse> BulkInsertAsync(List<CreateAppointmentBulkDTO> appointments);
     }
 }

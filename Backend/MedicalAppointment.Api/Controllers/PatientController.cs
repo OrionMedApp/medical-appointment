@@ -1,5 +1,6 @@
 ﻿using MedicalAppointment.Application.DTOs.Patient;
 using MedicalAppointment.Application.IServices;
+using MedicalAppointment.Application.Services;
 using MedicalAppointment.Domain.Entities;
 using MedicalAppointment.Domain.Exceptions;
 using MedicalAppointment.Infrastructure.Data;
@@ -41,7 +42,7 @@ namespace MedicalAppointment.Api.Controllers
             }
         }
         [HttpGet]
-        public async Task<ActionResult<List<ReturnPatientDTO>>> GetAll([FromQuery] int page = 1, [FromQuery] int pageSize = 20)
+        public async Task<ActionResult<List<ReturnPatientDTO>>> GetAll([FromQuery] int? page = null, [FromQuery] int? pageSize = null)
         {
             var patients = await _service.GetAllAsync(page, pageSize);
             return Ok(patients);
@@ -97,7 +98,16 @@ namespace MedicalAppointment.Api.Controllers
             return File(csvBytes, "text/csv", "patients.csv");
         }
 
+        [HttpPost("bulk")]
+        public async Task<IActionResult> BulkInsert([FromBody] List<CreatePatientDTO> patients)
+        {
+            if (patients == null || !patients.Any())
+                return BadRequest("Patients list cannot be empty.");
 
+            var result = await _service.BulkInsertAsync(patients);
+
+            return Ok(result);
+        }
 
     }
 }

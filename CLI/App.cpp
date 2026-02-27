@@ -6,6 +6,10 @@
 
 #include "Validator.hpp"
 
+#include "Appointment.hpp"
+#include <sstream>
+
+
 using namespace std;
 
 
@@ -62,18 +66,75 @@ void App::addDoctor() {
     cout << "Doctor added" << endl;
 }
 
+void App::addPatient() {
+   string first_name, last_name,email,phoneNumber;
+    std::cout << "--- Add New Patient ---" << endl;
+    std::cout << "First name: "; std::getline(std::cin >> std::ws, first_name);
+    if (!Validator::isValidName(first_name)) {
+        std::cout << "Invalid first name!" << endl << endl;
+        return;
+    }
+    std::cout << "Last name: "; std::getline(std::cin >> std::ws, last_name);
+    if (!Validator::isValidName(last_name)) {
+        std::cout << "Invalid last name!" << endl << endl;
+        return;
+    }
+    std::cout << "Email: "; std::getline(std::cin >> std::ws, email);
+    if (!Validator::isValidEmail(email)) {
+        std::cout << "Invalid email!" << endl << endl;
+        return;
+    }
+    std::cout << "Phone: "; std::getline(std::cin, phoneNumber);
+    if (!Validator::isValidPhone(phoneNumber)) {
+        std::cout << "Invalid phone!" << endl << endl;
+        return;
+    }
+
+    //medicalID GUID
+    string medicalID = Validator::generateMedicalID();
+
+    Patient p(first_name, last_name, email, phoneNumber, medicalID);
+    hospitalManager->addSavePatient(p);
+    cout << "Patient added! Medical ID: " << medicalID << endl << endl;
+}
+void App::scheduleAppointment() {
+    if (!hospitalManager->scheduleAppointment()) {
+        std::cout << "Error while scheduling!" << std::endl;
+    }
+}
+
+
 void App::stateMachine() {
     try {
         switch (chooseOption()) {
             case SCHEDULE:
+                scheduleAppointment();
+                break;
             case ADD_DOCTOR:
                 addDoctor();
                 break;
             case ADD_PATIENT:
-            case STORE_ENTRIES:
-            case TRACK_APPOINTMENTS:
-            case SYNC_DOCTORS:
+                addPatient();
                 break;
+            case STORE_ENTRIES: {
+                DWORD statusCode = 0;
+                hospitalManager->storeAppointments(L"CLI-DoctorApp", L"localhost", 5085, L"/api/Appointment/bulk",
+                                                   statusCode);
+                break;
+            }
+            case TRACK_APPOINTMENTS:
+                hospitalManager->trackAppointments();
+                break;
+            case SYNC_DOCTORS: {
+                DWORD statusCode = 0;
+                std::string response = hospitalManager->getResponseFromBackend(L"CLI-DoctorApp",L"localhost", 5085, L"/api/Doctor/export", statusCode);
+                if (statusCode == 200) {
+                    hospitalManager->exportResponseToAFile(response, "doctors");
+                }else {
+                    cout << "Error occured!" << endl << endl;
+                }
+                break;
+            }
             case EXIT:
                 isRunning = false;
                 return;

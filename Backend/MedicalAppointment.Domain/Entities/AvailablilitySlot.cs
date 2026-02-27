@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MedicalAppointment.Domain.Exceptions;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -15,7 +16,20 @@ namespace MedicalAppointment.Domain.Entities
         public DateTime EndTime { get; set; }
         public bool IsBooked { get; set; }
 
-       
+
+        public void MarkAsBooked()
+        {
+            if (IsBooked)
+                throw new DomainValidationException("Slot already booked");
+
+            IsBooked = true;
+        }
+
+        public void Release()
+        {
+            IsBooked = false;
+        }
+
 
     }
 

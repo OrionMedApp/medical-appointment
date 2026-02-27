@@ -22,7 +22,6 @@ namespace MedicalAppointment.Infrastructure.Repositories
         public async Task<Patient?> GetByIdAsync(Guid id)
         {
             return await _context.Patients
-                .Include(p => p.Appointments)
                 .FirstOrDefaultAsync(p => p.Id == id);
         }
 
@@ -49,6 +48,15 @@ namespace MedicalAppointment.Infrastructure.Repositories
         {
             _context.Patients.Update(patient);
             await _context.SaveChangesAsync();
+        }
+        public async Task<List<Patient>> GetByMedicalIdsAsync(IEnumerable<Guid> medicalIds)
+        {
+            var ids = medicalIds.Distinct().ToList();
+            if (ids.Count == 0) return new List<Patient>();
+
+            return await _context.Patients
+                .Where(p => ids.Contains(p.MedicalId))
+                .ToListAsync();
         }
     }
 }

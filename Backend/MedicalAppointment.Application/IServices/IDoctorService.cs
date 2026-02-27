@@ -1,4 +1,5 @@
-﻿using MedicalAppointment.Application.DTOs.Doctor;
+﻿using MedicalAppointment.Application.DTOs.AvailableSlot;
+using MedicalAppointment.Application.DTOs.Doctor;
 using MedicalAppointment.Application.DTOs.Patient;
 using MedicalAppointment.Domain.Entities;
 using System;
@@ -13,8 +14,14 @@ namespace MedicalAppointment.Application.IServices
     {
         Task<Doctor?> GetByIdAsync(Guid id);
         Task<Doctor> CreateAsync(CreateDoctorDTO doctor);
-        Task<List<ReturnDoctorDTO>> GetAllAsync(int page = 1, int pageSize = 20);
+        Task<List<ReturnDoctorDTO>> GetAllAsync(int? page = null, int? pageSize =null);
         Task<Doctor?> UpdateAsync(Guid id, UpdateDoctorDTO dto);
         Task<bool> DeleteAsync(Guid id);
+        Task<byte[]> GetAllDoctorsCsvAsync();
+
+        Task<List<ReturnAvailabilitySlotDTO>> GetAvailableSlotsByDoctorAndDate(Guid? doctorId, DateTime? date);
+
+        Task<BulkInsertDoctorsResponse> BulkInsertAsync(List<CreateDoctorDTO> doctors);
+
     }
 }

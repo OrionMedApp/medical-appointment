@@ -4,8 +4,12 @@
 
 #ifndef CLI_VALIDATOR_HPP
 #define CLI_VALIDATOR_HPP
-#include <regex>
+#include <objbase.h>
 #include <string>
+#include <regex>
+#include <iomanip>
+#include <sstream>
+
 
 
 class Validator {
@@ -15,12 +19,51 @@ public:
         return std::regex_match(email, pattern);
     }
 
-    // Checks for: exactly 10 digits (adjust for your country)
-    // Or use: R"(^\+?[0-9]{10,15}$)" for international formats
+
+    // stavljeno isto kao kolege iz C#
     static bool isValidPhone(const std::string& phone) {
-        const std::regex pattern(R"(^\+[0-9]{10,15}$)");
+        const std::regex pattern(R"((?:\+3816\d{7,8}|06\d{7,8}))");
         return std::regex_match(phone, pattern);
     }
+    static bool isValidName(const std::string& name) {
+        return !name.empty() && name.length() >= 3;
+    }
+
+    static bool isValidMedicalID(const std::string& id) {
+        return id.length() == 36;
+    }
+    static std::string generateMedicalID() {
+        GUID guid;
+        CoCreateGuid(&guid);
+        wchar_t wbuf[64];
+        StringFromGUID2(guid, wbuf, 64);
+        std::wstring ws(wbuf);
+        std::string result(ws.begin(), ws.end());
+        return result.substr(1, result.length() - 2);
+    }
+    static bool isValidAppointmentType(const std::string& type) {
+        return type == "Consultation" || type == "Follow-up" || type == "Emergency";
+    }
+
+    static bool isValidGuid(const std::string& guid) {
+        const std::regex guidPattern("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$");
+        return std::regex_match(guid, guidPattern);
+    }
+
+    static bool isValidAppointmentStatus(const std::string& status) {
+        return status == "Scheduled" || status == "Completed" || status == "Cancelled";
+    }
+
+    static bool isValidISO8601(const std::string& ts) {
+        const std::regex pattern("^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}Z$");
+
+        return std::regex_match(ts, pattern);
+    }
+
+    static bool isMandatory(const std::string& field) {
+        return !field.empty();
+    }
+
 };
 
 

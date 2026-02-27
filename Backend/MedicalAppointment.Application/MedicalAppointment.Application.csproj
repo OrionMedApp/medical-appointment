@@ -7,6 +7,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="DTOs\ReturnAppointmentDTO\**" />
+    <EmbeddedResource Remove="DTOs\ReturnAppointmentDTO\**" />
+    <None Remove="DTOs\ReturnAppointmentDTO\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\MedicalAppointment.Domain\MedicalAppointment.Domain.csproj" />
   </ItemGroup>
 
@@ -16,7 +22,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="DTOs\ReturnAppointmentDTO\" />
     <Folder Include="Exceptions\" />
   </ItemGroup>
 

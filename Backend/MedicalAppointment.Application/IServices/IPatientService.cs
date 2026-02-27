@@ -14,8 +14,10 @@ namespace MedicalAppointment.Application.IServices
         Task<Patient> CreateAsync(CreatePatientDTO patient);
         Task<bool> DeleteAsync(Guid id);
         Task<Patient?> UpdateAsync(Guid id, UpdatePatientDTO dto);
-        Task<List<ReturnPatientDTO>> GetAllAsync(int page= 1, int pageSize= 20);
+        Task<List<ReturnPatientDTO>> GetAllAsync(int? page = null, int? pageSize= null);
         Task<byte[]> GetAllPatientsCsvAsync();
+        Task<BulkInsertPatientsResponse> BulkInsertAsync(List<CreatePatientDTO> patients);
+
 
     }
 }
