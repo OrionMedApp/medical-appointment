@@ -10,7 +10,7 @@ const team = [
   { name: "Djordje", photo: "/djordje.jpg" },
   { name: "Ime8", photo: "/petar.jpg" },
   { name: "Ime9", photo: "/tamara.jpg" },
-  { name: "Ime10", photo: "/milica.jpg" },
+  { name: "Ime10", photo: "/petart.png" },
 ];
 
 const AppFooter = () => {
