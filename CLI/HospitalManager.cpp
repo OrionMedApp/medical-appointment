@@ -86,6 +86,17 @@ std::string HospitalManager::getResponseFromBackend(const std::wstring &appName,
     return response;
 }
 
+void HospitalManager::storeAppointments(const std::wstring &appName, const std::wstring &host,
+                                                    const int &port, const std::wstring &path, DWORD &statusCode) {
+    std::string data = readFileContents(appointments_file);
+    auto &client = HttpClient::getInstance();
+    client.connect(appName, host, port);
+    statusCode = 0;
+    std::string response = client.postRequest(path, data ,statusCode);
+    client.disconnect();
+    std::cout << response;
+}
+
 void HospitalManager::trackAppointments() {
     DWORD statusCode = 0;
 
