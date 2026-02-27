@@ -167,4 +167,106 @@ void HospitalManager::trackAppointments() {
     }
 }
 
+std::string getValidatedInput(const std::string& prompt, bool (*validator)(const std::string&)) {
+    std::string input;
+    while (true) {
+        std::cout << prompt;
+        if (!(std::cin >> std::ws)) return ""; // Handle EOF/Stream error
+        std::getline(std::cin, input);
+
+        if (validator(input)) return input;
+        std::cout << "Invalid format! Please try again." << std::endl;
+    }
+}
+
+bool HospitalManager::scheduleAppointment() {
+    DWORD statusCode = 0;
+
+    std::string did = getValidatedInput("Enter Doctor GUID: ", Validator::isValidGuid);
+
+
+    std::string pathDoctor = "/api/Doctor/" + did;
+    std::string response = getResponseFromBackend(L"CLI-DoctorApp", L"localhost", 5085,
+                                                std::filesystem::path(pathDoctor).wstring(), statusCode);
+
+    if (statusCode != 200) {
+        std::cout << "Doctor doesn't exist in database!" << std::endl << std::endl;
+        return false;
+    }
+
+    std::string doctorEmail, patientMedicalId;
+    try {
+        auto j = json::parse(response);
+
+        // 2. Extract the email field
+        // (Ensure your backend uses the key "email", or change this to "Email")
+        if (j.contains("email")) {
+            doctorEmail = j.at("email").get<std::string>();
+        } else {
+            std::cout << "Error: Doctor record found but email is missing!" << std::endl;
+            return false;
+        }
+    } catch (json::parse_error& e) {
+        std::cout << "Failed to parse doctor data: " << e.what() << std::endl;
+        return false;
+    }
+
+    std::string pid = getValidatedInput("Enter Patient GUID: ", Validator::isValidGuid);
+    std::string pathPatient = "/api/Patient/" + pid;
+    response = getResponseFromBackend(L"CLI-DoctorApp", L"localhost", 5085,
+                                     std::filesystem::path(pathPatient).wstring(), statusCode);
+
+    try {
+        auto j = json::parse(response);
+
+        // 2. Extract the email field
+        // (Ensure your backend uses the key "email", or change this to "Email")
+        if (j.contains("medicalId")) {
+            patientMedicalId = j.at("medicalId").get<std::string>();
+        } else {
+            std::cout << "Error: Patient record found but medicalId is missing!" << std::endl;
+            return false;
+        }
+    } catch (json::parse_error& e) {
+        std::cout << "Failed to parse doctor data: " << e.what() << std::endl;
+        return false;
+    }
+
+    if (statusCode != 200) {
+        std::cout << "Patient doesn't exist in database!" << std::endl << std::endl;
+        return false;
+    }
+
+    std::string sdate = getValidatedInput("Enter start-date (YYYY-MM-DDTHH:mm:ss.xxxZ): ", Validator::isValidISO8601);
+    std::string edate = getValidatedInput("Enter end-date (YYYY-MM-DDTHH:mm:ss.xxxZ): ", Validator::isValidISO8601);
+
+    std::set<std::string> allowedTypes = { "Consultation", "Follow-up", "Emergency" };
+    std::set<std::string> allowedStatuses = { "Scheduled", "Completed", "Cancelled" };
+
+    std::string type, status, notes;
+
+    std::cout << "Enter Type (Consultation/Follow-up/Emergency): ";
+    std::getline(std::cin >> std::ws, type);
+    if (allowedTypes.find(type) == allowedTypes.end()) {
+        std::cout << "Error: Invalid appointment type." << std::endl;
+        return false;
+    }
+
+    std::cout << "Enter Status (Scheduled/Completed/Cancelled): ";
+    std::getline(std::cin >> std::ws, status);
+    if (allowedStatuses.find(status) == allowedStatuses.end()) {
+        std::cout << "Error: Invalid appointment status." << std::endl;
+        return false;
+    }
+
+    std::cout << "Enter notes: ";
+    std::getline(std::cin >> std::ws, notes);
+
+    Appointment a(patientMedicalId, doctorEmail, sdate, edate, type, status, notes);
+    addSaveAppointment(a);
+
+    return true;
+}
+
+
 
