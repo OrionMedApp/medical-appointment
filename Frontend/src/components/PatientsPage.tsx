@@ -6,6 +6,7 @@ import { CreatePatientModal, CreatePatientDTO } from "./CreatePatientModal";
 import PatientHistoryModal from "./PatientHistoryModal";
 import "../style/PatientsPage.css";
 import "../style/Buttons.css";
+import Emergency from "./Emergency";
 
 type ReturnPatientDTO = {
   id: string;
@@ -40,7 +41,7 @@ const mapPatient = (p: ReturnPatientDTO): PatientRow => ({
 
 const PatientsPage = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-
+  const [openEmergency, setOpenEmergency] = useState(false);
   const [all, setAll] = useState<PatientRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -162,9 +163,9 @@ const PatientsPage = () => {
         isOpen={isSidebarOpen}
         onClose={() => setIsSidebarOpen(false)}
         activePath={location.pathname}
-        onEmergencyClick={() => {}}
+        onEmergencyClick={() => setOpenEmergency(true)}
       />
-
+      <Emergency open={openEmergency} onClose={() => setOpenEmergency(false)} />
       <AppointmentHeader
         isSidebarOpen={isSidebarOpen}
         onToggleSidebar={() => setIsSidebarOpen((prev) => !prev)}

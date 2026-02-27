@@ -10,6 +10,8 @@ import {
 } from "./CreateDoctorModal";
 import "../style/DoctorsPage.css";
 import "../style/Buttons.css";
+import Emergency from "./Emergency";
+
 
 type ReturnDoctorDTO = {
   id: string;
@@ -105,7 +107,7 @@ const mapDoctor = (d: ReturnDoctorDTO): DoctorRow => ({
 const DoctorsPage = () => {
   const location = useLocation();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-
+  const [openEmergency, setOpenEmergency] = useState(false);
   const [all, setAll] = useState<DoctorRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -215,9 +217,9 @@ const handleDelete = async (id: string) => {
         isOpen={isSidebarOpen}
         onClose={() => setIsSidebarOpen(false)}
         activePath={location.pathname}
-        onEmergencyClick={() => {}}
+        onEmergencyClick={() => setOpenEmergency(true)}
       />
-
+      <Emergency open={openEmergency} onClose={() => setOpenEmergency(false)} />
       <AppointmentHeader
         isSidebarOpen={isSidebarOpen}
         onToggleSidebar={() => setIsSidebarOpen((prev) => !prev)}

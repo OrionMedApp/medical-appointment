@@ -104,7 +104,12 @@ void App::stateMachine() {
             case ADD_PATIENT:
                 addPatient();
                 break;
-            case STORE_ENTRIES:
+            case STORE_ENTRIES: {
+                DWORD statusCode = 0;
+                hospitalManager->storeAppointments(L"CLI-DoctorApp", L"localhost", 5085, L"/api/Appointment/bulk",
+                                                   statusCode);
+                break;
+            }
             case TRACK_APPOINTMENTS:
                 hospitalManager->trackAppointments();
                 break;

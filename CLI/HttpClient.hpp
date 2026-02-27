@@ -27,6 +27,8 @@ public:
 
     void disconnect();
 
+    std::string postRequest(const std::wstring& path, const std::string& postData, DWORD& outStatusCode);
+
 
 private:
 

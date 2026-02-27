@@ -20,11 +20,12 @@ public class AiController : ControllerBase
 
     private readonly IPatientRepository _patientRepository;
 
-    public AiController(OpenAiClient ai, IPatientRepository patientRepository, IAppointmentService appointments)
+    public AiController(OpenAiClient ai, IPatientRepository patientRepository, IAppointmentService appointments, IPatientService patientService)
     {
         _ai = ai;
         _patientRepository = patientRepository;
         _appointments = appointments;
+        _patients = patientService;
     }
 
     [HttpPost("patients")]
