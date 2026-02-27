@@ -23,11 +23,9 @@ public:
 
     void exportResponseToAFile(std::string& response, std::string file_name);
 
-    bool fetchDoctorsFromBackend();
-
     void addSaveAppointment(Appointment& a);
 
-    bool getDoctorFromBackend();
+    bool scheduleAppointment();
 
 
 private:

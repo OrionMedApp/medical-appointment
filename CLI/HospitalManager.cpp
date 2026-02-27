@@ -26,22 +26,6 @@
 
 using json = nlohmann::json;
 
-
-static std::string trim(const std::string& str) {
-    std::string s = str;
-
-    s.erase(0, s.find_first_not_of(" \t\n\r\f\"'"));
-    s.erase(s.find_last_not_of(" \t\n\r\f\"'") + 1);
-    return s;
-}
-static std::wstring wtrim(const std::wstring& str) {
-    std::wstring s = str;
-    s.erase(0, s.find_first_not_of(L" \t\n\r\f\"'"));
-    s.erase(s.find_last_not_of(L" \t\n\r\f\"'") + 1);
-    return s;
-}
-
-
 void HospitalManager::addSaveDoctor(Doctor &d) {
     std::ifstream inFile(doctors_file);
     json doctors;
@@ -121,110 +105,102 @@ std::string HospitalManager::getResponseFromBackend(const std::wstring &appName,
     return response;
 }
 
-bool HospitalManager::getDoctorFromBackend() {
-    DWORD statusCode = 0;
-    std::wstring pid, did, sdate, edate, status, type, notes;
-    bool valid = false;
+std::string getValidatedInput(const std::string& prompt, bool (*validator)(const std::string&)) {
+    std::string input;
+    while (true) {
+        std::cout << prompt;
+        if (!(std::cin >> std::ws)) return ""; // Handle EOF/Stream error
+        std::getline(std::cin, input);
 
-    while (!valid) {
-        std::wcout << L"Please enter a valid Doctor GUID (XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX): ";
-        std::getline(std::wcin >> std::ws, did);
-
-        if (Validator::isValidGuid(did)) {
-            valid = true;
-        } else {
-            std::wcout << L"Invalid format! Please try again.\n";
-        }
+        if (validator(input)) return input;
+        std::cout << "Invalid format! Please try again." << std::endl;
     }
+}
 
-    std::wstring pathDoctor = L"/api/Doctor/" + did;
+bool HospitalManager::scheduleAppointment() {
+    DWORD statusCode = 0;
 
-    std::string response = getResponseFromBackend(L"CLI-DoctorApp", L"localhost", 5085, pathDoctor, statusCode);
+    std::string did = getValidatedInput("Enter Doctor GUID: ", Validator::isValidGuid);
 
-    std::cout << response << std::endl;
+
+    std::string pathDoctor = "/api/Doctor/" + did;
+    std::string response = getResponseFromBackend(L"CLI-DoctorApp", L"localhost", 5085,
+                                                std::filesystem::path(pathDoctor).wstring(), statusCode);
 
     if (statusCode != 200) {
         std::cout << "Doctor doesn't exist in database!" << std::endl << std::endl;
         return false;
     }
 
-    valid = false;
+    std::string doctorEmail, patientMedicalId;
+    try {
+        auto j = json::parse(response);
 
-    while (!valid) {
-        std::wcout << L"Please enter a valid Patient GUID (XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX): ";
-        std::getline(std::wcin >> std::ws, pid);
-
-        if (Validator::isValidGuid(pid)) {
-            valid = true;
+        // 2. Extract the email field
+        // (Ensure your backend uses the key "email", or change this to "Email")
+        if (j.contains("email")) {
+            doctorEmail = j.at("email").get<std::string>();
         } else {
-            std::wcout << L"Invalid format! Please try again.\n";
+            std::cout << "Error: Doctor record found but email is missing!" << std::endl;
+            return false;
         }
+    } catch (json::parse_error& e) {
+        std::cout << "Failed to parse doctor data: " << e.what() << std::endl;
+        return false;
     }
 
-    std::wstring pathPatient = L"/api/Patient/" + pid;
+    std::string pid = getValidatedInput("Enter Patient GUID: ", Validator::isValidGuid);
+    std::string pathPatient = "/api/Patient/" + pid;
+    response = getResponseFromBackend(L"CLI-DoctorApp", L"localhost", 5085,
+                                     std::filesystem::path(pathPatient).wstring(), statusCode);
 
-    response = getResponseFromBackend(L"CLI-DoctorApp", L"localhost", 5085, pathPatient, statusCode);
+    try {
+        auto j = json::parse(response);
 
-    std::cout << response << std::endl;
+        // 2. Extract the email field
+        // (Ensure your backend uses the key "email", or change this to "Email")
+        if (j.contains("medicalId")) {
+            patientMedicalId = j.at("medicalId").get<std::string>();
+        } else {
+            std::cout << "Error: Patient record found but medicalId is missing!" << std::endl;
+            return false;
+        }
+    } catch (json::parse_error& e) {
+        std::cout << "Failed to parse doctor data: " << e.what() << std::endl;
+        return false;
+    }
 
     if (statusCode != 200) {
         std::cout << "Patient doesn't exist in database!" << std::endl << std::endl;
         return false;
     }
-    valid = false;
 
-    while (!valid) {
-        std::wcout << L"Please enter a valid start-date (YYYY-MM-DDTHH:mm:ss.xxxZ): ";
-        std::getline(std::wcin >> std::ws, sdate);
+    std::string sdate = getValidatedInput("Enter start-date (YYYY-MM-DDTHH:mm:ss.xxxZ): ", Validator::isValidISO8601);
+    std::string edate = getValidatedInput("Enter end-date (YYYY-MM-DDTHH:mm:ss.xxxZ): ", Validator::isValidISO8601);
 
-        if (Validator::isValidISO8601(sdate)) {
-            valid = true;
-        } else {
-            std::wcout << L"Invalid format! Please try again.\n";
-        }
-    }
+    std::set<std::string> allowedTypes = { "Consultation", "Follow-up", "Emergency" };
+    std::set<std::string> allowedStatuses = { "Scheduled", "Completed", "Cancelled" };
 
-    valid = false;
+    std::string type, status, notes;
 
-    while (!valid) {
-        std::wcout << L"Please enter a valid end-date (YYYY-MM-DDTHH:mm:ss.xxxZ): ";
-        std::getline(std::wcin >> std::ws, edate);
-
-        if (Validator::isValidISO8601(edate)) {
-            valid = true;
-        } else {
-            std::wcout << L"Invalid format! Please try again.\n";
-        }
-    }
-
-    std::set<std::wstring> allowedTypes = { L"Consultation", L"Follow-up", L"Emergency" };
-    std::set<std::wstring> allowedStatuses = { L"Scheduled", L"Completed", L"Cancelled" };
-
-    // 2. Validate Type
-    std::wcout << L"Enter Type (Consultation/Follow-up/Emergency): ";
-    std::getline(std::wcin >> std::ws, type);
-
+    std::cout << "Enter Type (Consultation/Follow-up/Emergency): ";
+    std::getline(std::cin >> std::ws, type);
     if (allowedTypes.find(type) == allowedTypes.end()) {
-        std::wcout << L"Error: Invalid appointment type.\n";
-        return 1;
+        std::cout << "Error: Invalid appointment type." << std::endl;
+        return false;
     }
 
-    std::wcout << L"Enter Status (Scheduled/Completed/Cancelled): ";
-    std::getline(std::wcin >> std::ws, status);
-
+    std::cout << "Enter Status (Scheduled/Completed/Cancelled): ";
+    std::getline(std::cin >> std::ws, status);
     if (allowedStatuses.find(status) == allowedStatuses.end()) {
-        std::wcout << L"Error: Invalid appointment status.\n";
-        return 1;
+        std::cout << "Error: Invalid appointment status." << std::endl;
+        return false;
     }
 
-    std::wcout << L"Enter notes: ";
-    std::getline(std::wcin >> std::ws, notes);
+    std::cout << "Enter notes: ";
+    std::getline(std::cin >> std::ws, notes);
 
-    type = wtrim(type);
-    status = wtrim(status);
-    notes = wtrim(notes);
-
-    Appointment a = Appointment(pid,did,sdate,edate,type,status,notes);
+    Appointment a(patientMedicalId, doctorEmail, sdate, edate, type, status, notes);
     addSaveAppointment(a);
 
     return true;

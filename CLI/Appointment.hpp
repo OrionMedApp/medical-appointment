@@ -12,39 +12,39 @@
 
 class Appointment {
 public:
-    Appointment(const std::wstring& patientID,
-                const std::wstring& doctorID,
-                const std::wstring& start,
-                const std::wstring& end,
-                const std::wstring& t,
-                const std::wstring& s,
-                const std::wstring& n) {
-        this->patientID = patientID;
-        this->doctorID = doctorID;
-        this->startDateTime = start;
-        this->endDateTime = end;
+    Appointment(const std::string& patientID,
+                const std::string& email,
+                const std::string& start,
+                const std::string& end,
+                const std::string& t,
+                const std::string& s,
+                const std::string& n) {
+        this->patientMedicalId = patientID;
+        this->doctorEmail = email;
+        this->startTime = start;
+        this->endTime = end;
         this->type = t;
         this->status = s;
         this->notes = n;
 }
-    std::wstring getPatientID() const;
-    std::wstring getDoctorID() const;
-    std::wstring getStartDateTime() const;
-    std::wstring getEndDateTime() const;
-    std::wstring getType() const;
-    std::wstring getStatus() const;
-    std::wstring  getNotes() const;
+    std::string getPatientMedicalId() const;
+    std::string getDoctorEmail() const;
+    std::string getStartTime() const;
+    std::string getEndTime() const;
+    std::string getType() const;
+    std::string getStatus() const;
+    std::string  getNotes() const;
 
-    NLOHMANN_DEFINE_TYPE_INTRUSIVE(Appointment, patientID, doctorID, startDateTime, endDateTime, type, status, notes)
+    NLOHMANN_DEFINE_TYPE_INTRUSIVE(Appointment, patientMedicalId, doctorEmail, startTime, endTime, type, status, notes)
 
 private:
-    std::wstring patientID;
-    std::wstring doctorID;
-    std::wstring startDateTime;
-    std::wstring endDateTime;
-    std::wstring type;
-    std::wstring status;
-    std::wstring notes;
+    std::string patientMedicalId;
+    std::string doctorEmail;
+    std::string startTime;
+    std::string endTime;
+    std::string type;
+    std::string status;
+    std::string notes;
 };
 namespace nlohmann {
     template <>

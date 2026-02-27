@@ -45,8 +45,8 @@ public:
         return type == "Consultation" || type == "Follow-up" || type == "Emergency";
     }
 
-    static bool isValidGuid(const std::wstring& guid) {
-        const std::wregex guidPattern(L"^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$");
+    static bool isValidGuid(const std::string& guid) {
+        const std::regex guidPattern("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$");
         return std::regex_match(guid, guidPattern);
     }
 
@@ -54,8 +54,8 @@ public:
         return status == "Scheduled" || status == "Completed" || status == "Cancelled";
     }
 
-    static bool isValidISO8601(const std::wstring& ts) {
-        const std::wregex pattern(L"^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}Z$");
+    static bool isValidISO8601(const std::string& ts) {
+        const std::regex pattern("^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}Z$");
 
         return std::regex_match(ts, pattern);
     }
