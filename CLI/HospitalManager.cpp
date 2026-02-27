@@ -16,13 +16,15 @@
 #include <chrono>
 #include <set>
 #include <thread>
+#include <locale>
+
 
 #include "HttpClient.hpp"
+#include "Validator.hpp"
 
 #pragma comment(lib, "winhttp.lib")
 
 using json = nlohmann::json;
-
 
 void HospitalManager::addSaveDoctor(Doctor &d) {
     std::ifstream inFile(doctors_file);
@@ -55,6 +57,23 @@ void HospitalManager::addSavePatient(Patient &p) {
 
     std::ofstream outFile(patients_file);
     outFile << patients.dump(4);
+    outFile.close();
+}
+
+void HospitalManager::addSaveAppointment(Appointment &a) {
+    std::ifstream inFile(appointments_file);
+    json appointments;
+    if (inFile.good()) {
+        inFile >> appointments;
+        inFile.close();
+    } else {
+        appointments = json::array();
+    }
+
+    appointments.push_back(a);
+
+    std::ofstream outFile(appointments_file);
+    outFile << appointments.dump(4);
     outFile.close();
 }
 

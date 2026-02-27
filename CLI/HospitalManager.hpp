@@ -6,10 +6,11 @@
 #define CLI_HOSPITALMANAGER_HPP
 #include <fstream>
 #include <vector>
+#include <string>
 
 #include "Doctor.hpp"
 #include "Patient.hpp"
-
+#include "Appointment.hpp"
 
 class HospitalManager {
 
@@ -22,6 +23,11 @@ public:
     void trackAppointments();
 
     void exportResponseToAFile(std::string& response, std::string file_name);
+
+    void addSaveAppointment(Appointment& a);
+
+    bool scheduleAppointment();
+
 
     static std::string readFileContents(const std::string& filename) {
         std::ifstream file(filename);

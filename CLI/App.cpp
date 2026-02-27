@@ -6,6 +6,10 @@
 
 #include "Validator.hpp"
 
+#include "Appointment.hpp"
+#include <sstream>
+
+
 using namespace std;
 
 
@@ -93,11 +97,19 @@ void App::addPatient() {
     hospitalManager->addSavePatient(p);
     cout << "Patient added! Medical ID: " << medicalID << endl << endl;
 }
+void App::scheduleAppointment() {
+    if (!hospitalManager->scheduleAppointment()) {
+        std::cout << "Error while scheduling!" << std::endl;
+    }
+}
+
 
 void App::stateMachine() {
     try {
         switch (chooseOption()) {
             case SCHEDULE:
+                scheduleAppointment();
+                break;
             case ADD_DOCTOR:
                 addDoctor();
                 break;
